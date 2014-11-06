@@ -50,8 +50,7 @@ class DropDownList<T> extends View {
    */
   void set autofocus(bool autofocus) {
     final seln = _selectNode..autofocus = _b(autofocus);
-    if (autofocus && inDocument)
-      seln.focus();
+    if (autofocus && inDocument) seln.focus();
   }
 
   /** Returns the number of visible rows.
@@ -80,10 +79,8 @@ class DropDownList<T> extends View {
    */
   void set model(DataModel model) {
     if (model != null) {
-      if (model is! SelectionModel)
-        throw new UIError("SelectionModel required, $model");
-      if (model is! ListModel && model is! TreeModel)
-        throw new UIError("Only ListModel or TreeModel allowed, not $model");
+      if (model is! SelectionModel) throw new UIError("SelectionModel required, $model");
+      if (model is! ListModel && model is! TreeModel) throw new UIError("Only ListModel or TreeModel allowed, not $model");
     }
 
     if (!identical(_model, model)) { //Note: it is not !=
@@ -105,8 +102,7 @@ class DropDownList<T> extends View {
   /** Returns the data.
    * Don't use this method if the data is assigned by use [model].
    */
-  List<T> get data
-  => model is DefaultListModel ? (model as DefaultListModel).data: null;
+  List<T> get data => model is DefaultListModel ? (model as DefaultListModel).data : null;
   /** Sets the data.
    * Unlike [model], UI won't be synchronized automatically if the assigned data
    * is changed. Thus, use this method only if you'd like to synchronize UI
@@ -116,8 +112,7 @@ class DropDownList<T> extends View {
    * you have to invoke `render()` explicitly.
    */
   void set data(List<T> data) {
-    if (data != null) model = new DefaultListModel(data);
-    else model = null;
+    if (data != null) model = new DefaultListModel(data); else model = null;
   }
   DataEventListener _initDataListener() {
     if (_dataListener == null) {
@@ -128,17 +123,19 @@ class DropDownList<T> extends View {
             sendEvent(new ViewEvent("render")); //send it since the look might be changed
             return; //no need to rerender
           case 'select':
-            if (_modelSelUpdating)
-              return;
+            if (_modelSelUpdating) return;
             if (_model is ListModel) { //not easy/worth to optimize handling of TreeModel
               final options = (node as SelectElement).options;
               final ListModel<T> model = _model as ListModel;
               final SelectionModel<T> selmodel = _model as SelectionModel;
               final bool multiple = selmodel.multiple;
-              for (int i = 0, len = model.length; i < len; ++i) {
-                final bool seled = (options[i] as OptionElement).selected = selmodel.isSelected(model[i]);
-                if (!multiple && seled)
-                  return; //done
+              {
+                int i = 0;
+                int len = model.length;
+                for ( ; i < len; ++i) {
+                  final bool seled = (options[i] as OptionElement).selected = selmodel.isSelected(model[i]);
+                  if (!multiple && seled) return; //done
+                }
               }
               return;
             }
@@ -166,8 +163,7 @@ class DropDownList<T> extends View {
   void set renderer(Renderer renderer) {
     if (!identical(_renderer, renderer)) {
       _renderer = renderer;
-      if (_model != null)
-        modelRenderer.queue(this);
+      if (_model != null) modelRenderer.queue(this);
     }
   }
 
@@ -189,7 +185,7 @@ class DropDownList<T> extends View {
       if (_model != null) {
         final SelectElement n = node;
         selIndex = n.selectedIndex;
-        final ListModel model = _model is ListModel ? _model: null;
+        final ListModel model = _model is ListModel ? _model : null;
         if ((_model as SelectionModel).multiple) {
           for (OptionElement opt in n.options) {
             if (opt.selected) {
@@ -225,107 +221,92 @@ class DropDownList<T> extends View {
 
   void _renderOptions() {
     node.nodes.clear();
-    if (_model == null)
-      return;
+    if (_model == null) return;
 
-    final renderer = _renderer != null ? _renderer: _defRenderer;
+    final renderer = _renderer != null ? _renderer : _defRenderer;
     if (_model is ListModel) {
       final ListModel<T> model = _model;
       final SelectionModel<T> selmodel = _model as SelectionModel;
       final multiple = selmodel.multiple;
-      for (int i = 0, len = model.length; i < len; ++i) {
-        final obj = model[i];
-        final selected = selmodel.isSelected(obj);
-        final disabled = _model is DisablesModel && (_model as DisablesModel).isDisabled(obj);
-        var ret = renderer(new RenderContext(this, _model, obj, selected, disabled, i));
-        if (ret == null) ret = "";
-        OptionElement opt;
-        if (ret is String)
-          opt = new Element.html(
-            '<option value="$i">${XmlUtil.encode(ret)}</option>');
-          //Note: Firefox doesn't support <option label="xx">
-        else if (ret is OptionElement)
-          opt = ret;
-        else
-          throw new UIError("Neither String nor OptionElement, $ret");
+      {
+        int i = 0;
+        int len = model.length;
+        for ( ; i < len; ++i) {
+          final obj = model[i];
+          final selected = selmodel.isSelected(obj);
+          final disabled = _model is DisablesModel && (_model as DisablesModel).isDisabled(obj);
+          var ret = renderer(new RenderContext(this, _model, obj, selected, disabled, i));
+          if (ret == null) ret = "";
+          OptionElement opt;
+          if (ret is String) opt = new Element.html('<option value="$i">${XmlUtil.encode(ret)}</option>'); //Note: Firefox doesn't support <option label="xx">
+          else if (ret is OptionElement) opt = ret; else throw new UIError("Neither String nor OptionElement, $ret");
 
-        if (selected) opt.selected = true;
-        if (disabled) opt.disabled = true;
-        node.nodes.add(opt);
+          if (selected) opt.selected = true;
+          if (disabled) opt.disabled = true;
+          node.nodes.add(opt);
+        }
       }
     } else {
       final TreeModel model = _model;
-      if (model.root != null)
-        _renderTree(node, model, renderer, model.root, -1);
+      if (model.root != null) _renderTree(node, model, renderer, model.root, -1);
     }
 
     //Update DOM tree
-    if ((_model as SelectionModel).isSelectionEmpty)
-      (node as SelectElement).selectedIndex = -1;
+    if ((_model as SelectionModel).isSelectionEmpty) (node as SelectElement).selectedIndex = -1;
   }
-  void _renderTree(Element parent, TreeModel<T> model,
-  Renderer renderer, var parentData, int parentIndex) {
+  void _renderTree(Element parent, TreeModel<T> model, Renderer renderer, var parentData, int parentIndex) {
     final SelectionModel<T> selmodel = _model as SelectionModel;
     final bool multiple = selmodel.multiple;
-    for (int i = 0, len = model.getChildCount(parentData); i < len; ++i) {
-      final T child = model.getChild(parentData, i);
-      final bool selected = selmodel.isSelected(child);
-      final bool disabled = _model is DisablesModel && (_model as DisablesModel).isDisabled(child);
-      var ret = renderer(new RenderContext(this, _model, child, selected, disabled, i));
-      if (ret == null) ret = "";
-      if (model.isLeaf(child)) {
-        OptionElement opt;
-        if (ret is String)
-          opt = new Element.html('<option>${XmlUtil.encode(ret)}</option>');
-          //Note: Firefox doesn't support <option label="xx">
-        else if (ret is OptionElement)
-          opt = ret;
-        else
-          throw new UIError("Neither String nor OptionElement, $ret");
+    {
+      int i = 0;
+      int len = model.getChildCount(parentData);
+      for ( ; i < len; ++i) {
+        final T child = model.getChild(parentData, i);
+        final bool selected = selmodel.isSelected(child);
+        final bool disabled = _model is DisablesModel && (_model as DisablesModel).isDisabled(child);
+        var ret = renderer(new RenderContext(this, _model, child, selected, disabled, i));
+        if (ret == null) ret = "";
+        if (model.isLeaf(child)) {
+          OptionElement opt;
+          if (ret is String) opt = new Element.html('<option>${XmlUtil.encode(ret)}</option>'); //Note: Firefox doesn't support <option label="xx">
+          else if (ret is OptionElement) opt = ret; else throw new UIError("Neither String nor OptionElement, $ret");
 
-        if (selected) opt.selected = true;
-        if (disabled) opt.disabled = true;
+          if (selected) opt.selected = true;
+          if (disabled) opt.disabled = true;
 
-        //store the path in value
-        final out = new StringBuffer();
-        if (parentIndex >= 0)
-          out..write(parentIndex)..write('.');
-        opt.value = (out..write(i)).toString();
+          //store the path in value
+          final out = new StringBuffer();
+          if (parentIndex >= 0) out
+              ..write(parentIndex)
+              ..write('.');
+          opt.value = (out..write(i)).toString();
 
-        parent.nodes.add(opt);
-      } else {
-        if (parentIndex >= 0)
-          throw new UIError("Only two levels allowed, $model");
+          parent.nodes.add(opt);
+        } else {
+          if (parentIndex >= 0) throw new UIError("Only two levels allowed, $model");
 
-        OptGroupElement optg;
-        if (ret is String)
-          optg = new Element.html('<optgroup label="${XmlUtil.encode(ret)}"></optgroup>');
-          //no matter what browser, it must be specified in 'label'
-        else if (ret is OptGroupElement)
-          optg = ret;
-        else
-          throw new UIError("Neither String nor OptGroupElement, $ret");
+          OptGroupElement optg;
+          if (ret is String) optg = new Element.html('<optgroup label="${XmlUtil.encode(ret)}"></optgroup>'); //no matter what browser, it must be specified in 'label'
+          else if (ret is OptGroupElement) optg = ret; else throw new UIError("Neither String nor OptGroupElement, $ret");
 
-        if (disabled) optg.disabled = true;
-        parent.nodes.add(optg);
+          if (disabled) optg.disabled = true;
+          parent.nodes.add(optg);
 
-        _renderTree(optg, model, renderer, child, i); //recursive
+          _renderTree(optg, model, renderer, child, i); //recursive
+        }
       }
     }
   }
   T _treeValueOf(OptionElement option) {
     final List<int> path = new List();
-    for (final String v in option.value.split('.'))
-      path.add(int.parse(v));
+    for (final String v in option.value.split('.')) path.add(int.parse(v));
 
     final TreeModel<T> model = _model;
     return model.getChildAt(path);
   }
   static void _renderAttrs(StringBuffer out, bool selected, bool disabled) {
-    if (selected)
-      out.write(' selected');
-    if (disabled)
-      out.write(' disabled');
+    if (selected) out.write(' selected');
+    if (disabled) out.write(' disabled');
   }
 
   @override

@@ -12,7 +12,7 @@ class TreeDataEvent<T> extends DataEvent {
    *
    * + [type]: `change`, `add` or `remove`.
    */
-  TreeDataEvent(TreeModel<T> model, String type, T this.node): super(model, type);
+  TreeDataEvent(TreeModel<T> model, String type, T this.node) : super(model, type);
 
   /** Returns the first affected node.
    */
@@ -73,39 +73,39 @@ class TreeDataEvent<T> extends DataEvent {
  * will be visible to the user.
  */
 abstract class TreeModel<T> extends DataModel {
-	/**
+  /**
 	 * Returns the root of the tree model.
 	 */
-	T get root;
-	/**
+  T get root;
+  /**
 	 * Returns the child of the given parent at the given index where the index indicates
 	 * in the parent's child array.
 	 *
 	 * + [parent] is a node in the tree, obtained from [root] or [getChild].
 	 */
-	T getChild(T parent, int index);
-	/**
+  T getChild(T parent, int index);
+  /**
 	 * Returns the number of children of the given parent.
 	 *
 	 * + [parent] is a node in the tree, obtained from [root] or [getChild].
 	 */
-	int getChildCount(T parent);
-	/**
+  int getChildCount(T parent);
+  /**
 	 * Returns true if node is a leaf.
 	 * In file-system terminology, a leaf node is a file, while a non-leaf node is a folder.
 	 *
 	 * + [node] is the data returned by [root] or [getChild].
 	 */
-	bool isLeaf(T node);
+  bool isLeaf(T node);
 
-	/**
+  /**
 	 * Returns the child at the given path where the path indicates the child is
 	 * placed in the whole tree.
 	 *
 	 * + [path] is a list of the index at each level of the tree. For example, [0, 1, 2]
 	 * represents the first child's the second child's third child.
 	 */
-	T getChildAt(List<int> path);
+  T getChildAt(List<int> path);
 }
 
 /**
@@ -113,8 +113,7 @@ abstract class TreeModel<T> extends DataModel {
  * To extend from this class, you have to implement [getChild], [getChildCount]
  * and [isLeaf]. This class provides a default implementation for all other methods.
  */
-abstract class AbstractTreeModel<T> extends AbstractDataModel<T>
-implements TreeModel<T>, OpensModel<T> {
+abstract class AbstractTreeModel<T> extends AbstractDataModel<T> implements TreeModel<T>, OpensModel<T> {
   T _root;
   Set<T> _opens;
 
@@ -127,11 +126,9 @@ implements TreeModel<T>, OpensModel<T> {
    * + [opens]: if not null, it will be used to hold the list of opened items.
    * Unlike [set opens], it won't make a copy.
    */
-  AbstractTreeModel(T root, {Set<T> selection, Set<T> disables,
-  Set<T> opens, bool multiple: false}):
-  super(selection: selection, disables: disables, multiple: multiple) {
+  AbstractTreeModel(T root, {Set<T> selection, Set<T> disables, Set<T> opens, bool multiple: false}) : super(selection: selection, disables: disables, multiple: multiple) {
     _root = root;
-    _opens = opens != null ? opens: new Set();
+    _opens = opens != null ? opens : new Set();
   }
 
   void _sendOpen() {
@@ -152,23 +149,23 @@ implements TreeModel<T>, OpensModel<T> {
   }
 
   T getChildAt(List<int> path) {
-    if (path == null || path.length == 0)
-      return root;
+    if (path == null || path.length == 0) return root;
 
     T parent = root;
     T node = null;
     int childCount = _childCount(parent);
     for (int i = 0; i < path.length; i++) {
-      if (path[i] < 0 || path[i] > childCount //out of bound
+      if (path[i] < 0 //model is wrong
+      || path[i] > childCount //model is wrong
       || (node = getChild(parent, path[i])) == null //model is wrong
       || ((childCount = _childCount(node)) <= 0 && i != path.length - 1)) //no more child
-        return null;
+      return null;
 
       parent = node;
     }
     return node;
   }
-  int _childCount(T parent) => isLeaf(parent) ? 0: getChildCount(parent);
+  int _childCount(T parent) => isLeaf(parent) ? 0 : getChildCount(parent);
 
   //Open//
   Set<T> get opens => _opens;
@@ -184,11 +181,10 @@ implements TreeModel<T>, OpensModel<T> {
   bool get isOpensEmpty => _opens.isEmpty;
 
   bool addToOpens(T node) {
-    if (_opens.contains(node))
-      return false;
+    if (_opens.contains(node)) return false;
 
     _opens.add(node);
-     _sendOpen();
+    _sendOpen();
     return true;
   }
   bool removeFromOpens(T node) {
@@ -211,8 +207,7 @@ implements TreeModel<T>, OpensModel<T> {
   void removeAllOpens(Iterable c) {
     final int oldlen = _opens.length;
     _opens.removeAll(c);
-    if (oldlen != _opens.length)
-      _sendOpen();
+    if (oldlen != _opens.length) _sendOpen();
   }
 }
 
@@ -258,16 +253,11 @@ class DefaultTreeModel<T> extends AbstractTreeModel<TreeNode<T>> {
    * + [opens]: if not null, it will be used to hold the list of opened items.
    * Unlike [set opens], it won't make a copy.
    */
-  DefaultTreeModel({TreeNode<T> root, Iterable nodes, Set<TreeNode<T>> selection,
-  Set<TreeNode<T>> disables, Set<TreeNode<T>> opens, bool multiple:false}):
-  super(root != null ? root: new DefaultTreeNode(), selection: selection,
-  disables: disables, opens: opens, multiple: multiple) {
+  DefaultTreeModel({TreeNode<T> root, Iterable nodes, Set<TreeNode<T>> selection, Set<TreeNode<T>> disables, Set<TreeNode<T>> opens, bool multiple: false}) : super(root != null ? root : new DefaultTreeNode(), selection: selection, disables: disables, opens: opens, multiple: multiple) {
     final TreeNode<T> p = _root.parent; //don't use the root argument since it might be null
-    if (p != null)
-      throw new ModelError("Only root node is allowed, not ${_root}");
+    if (p != null) throw new ModelError("Only root node is allowed, not ${_root}");
     _root.model = this;
-    if (nodes != null)
-      _root.addAll(nodes);
+    if (nodes != null) _root.addAll(nodes);
   }
 
   TreeNode<T> getChild(TreeNode<T> parent, int index) => parent[index];
@@ -286,8 +276,7 @@ class DefaultTreeModel<T> extends AbstractTreeModel<TreeNode<T>> {
    * + [parent] is a node in the tree, obtained from [root] or [getChild].
    * + [child] the node we are interested in 
    */
-  int getIndexOfChild(TreeNode<T> parent, TreeNode<T> child)
-  => identical(parent, child.parent) ? child.index: -1;
+  int getIndexOfChild(TreeNode<T> parent, TreeNode<T> child) => identical(parent, child.parent) ? child.index : -1;
 
   /**
    * Returns the path from the given child, where the path indicates the child is
@@ -298,10 +287,9 @@ class DefaultTreeModel<T> extends AbstractTreeModel<TreeNode<T>> {
    */
   List<int> getPath(TreeNode<T> child) { //optional but provided for better performance
     List<int> path = new List();
-    for (;;) {
+    for ( ; ; ) {
       final TreeNode<T> parent = child.parent;
-      if (parent == null)
-        break; //child is not in the same model
+      if (parent == null) break; //child is not in the same model
 
       path.insert(0, child.index);
       child = parent;

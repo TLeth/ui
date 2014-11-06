@@ -16,31 +16,25 @@ class EventStreams {
   /** A broadcast event used to notify root views and any listeners of [Broadcaster] 
    * that a view or an element is *activated*.
    */
-  static const ViewEventStreamProvider<ActivateEvent> activate
-    = const ViewEventStreamProvider<ActivateEvent>('activate');
-  static const ViewEventStreamProvider<ChangeEvent> change
-    = const ViewEventStreamProvider<ChangeEvent>('change');
+  static const ViewEventStreamProvider<ActivateEvent> activate = const ViewEventStreamProvider<ActivateEvent>('activate');
+  static const ViewEventStreamProvider<ChangeEvent> change = const ViewEventStreamProvider<ChangeEvent>('change');
   /** Indicates a popup is about to be dismessed.
    * The event is sent to the popup being dismissed.
    */
-  static const ViewEventStreamProvider<ViewEvent> dismiss
-    = const ViewEventStreamProvider<ViewEvent>('dismiss');
+  static const ViewEventStreamProvider<ViewEvent> dismiss = const ViewEventStreamProvider<ViewEvent>('dismiss');
   /** Indicates the layout of a view and all of its descendant views have been changed.
    *
    * See also [preLayout].
    */
-  static const ViewEventStreamProvider<LayoutEvent> layout
-    = const ViewEventStreamProvider<LayoutEvent>('layout');
+  static const ViewEventStreamProvider<LayoutEvent> layout = const ViewEventStreamProvider<LayoutEvent>('layout');
   /// Indicates a view has been attached to a document.
-  static const ViewEventStreamProvider<ViewEvent> mount
-    = const ViewEventStreamProvider<ViewEvent>('mount');
+  static const ViewEventStreamProvider<ViewEvent> mount = const ViewEventStreamProvider<ViewEvent>('mount');
   /** Indicates the layout of a view is going to be handled.
    * It is sent before handling this view and any of its descendant views.
    *
    * See also [layout].
    */
-  static const ViewEventStreamProvider<LayoutEvent> preLayout
-    = const ViewEventStreamProvider<LayoutEvent>('preLayout');
+  static const ViewEventStreamProvider<LayoutEvent> preLayout = const ViewEventStreamProvider<LayoutEvent>('preLayout');
   /** Indicates a view has re-rendered itself because its data model has been changed.
    * It is used with views that support the data model, such as [DropDownList].
    *
@@ -49,120 +43,68 @@ class EventStreams {
    * For example, the height of [DropDownList] will be changed if
    * the multiple state is changed.
    */
-  static const ViewEventStreamProvider<ViewEvent> render
-    = const ViewEventStreamProvider<ViewEvent>('render');
+  static const ViewEventStreamProvider<ViewEvent> render = const ViewEventStreamProvider<ViewEvent>('render');
   /// Indicates the end of a scrolling.
-  static const ViewEventStreamProvider<ScrollEvent> scrollEnd
-    = const ViewEventStreamProvider<ScrollEvent>('scrollEnd');
+  static const ViewEventStreamProvider<ScrollEvent> scrollEnd = const ViewEventStreamProvider<ScrollEvent>('scrollEnd');
   /** Indicates the move of a scrolling. This event will be continuously
    * fired at each iteration where the scroll position is updated.
    */
-  static const ViewEventStreamProvider<ScrollEvent> scrollMove
-    = const ViewEventStreamProvider<ScrollEvent>('scrollMove');
+  static const ViewEventStreamProvider<ScrollEvent> scrollMove = const ViewEventStreamProvider<ScrollEvent>('scrollMove');
   /// Indicates the start of a scrolling.
-  static const ViewEventStreamProvider<ScrollEvent> scrollStart
-    = const ViewEventStreamProvider<ScrollEvent>('scrollStart');
+  static const ViewEventStreamProvider<ScrollEvent> scrollStart = const ViewEventStreamProvider<ScrollEvent>('scrollStart');
   /// Indicates the selection state of a view is changed.
-  static const ViewEventStreamProvider<SelectEvent> select
-    = const ViewEventStreamProvider<SelectEvent>('select');
+  static const ViewEventStreamProvider<SelectEvent> select = const ViewEventStreamProvider<SelectEvent>('select');
   /// Indicates a view has been detached from a document.
-  static const ViewEventStreamProvider<ViewEvent> unmount
-    = const ViewEventStreamProvider<ViewEvent>('unmount');
+  static const ViewEventStreamProvider<ViewEvent> unmount = const ViewEventStreamProvider<ViewEvent>('unmount');
   //DOM Event Proxy Streams//
-  static const ViewEventStreamProvider<DomEvent> abort
-    = const ViewEventStreamProvider<DomEvent>('abort');
-  static const ViewEventStreamProvider<DomEvent> beforeCopy
-    = const ViewEventStreamProvider<DomEvent>('beforeCopy');
-  static const ViewEventStreamProvider<DomEvent> beforeCut
-    = const ViewEventStreamProvider<DomEvent>('beforeCut');
-  static const ViewEventStreamProvider<DomEvent> beforePaste
-    = const ViewEventStreamProvider<DomEvent>('beforePaste');
-  static const ViewEventStreamProvider<DomEvent> blur
-    = const ViewEventStreamProvider<DomEvent>('blur');
+  static const ViewEventStreamProvider<DomEvent> abort = const ViewEventStreamProvider<DomEvent>('abort');
+  static const ViewEventStreamProvider<DomEvent> beforeCopy = const ViewEventStreamProvider<DomEvent>('beforeCopy');
+  static const ViewEventStreamProvider<DomEvent> beforeCut = const ViewEventStreamProvider<DomEvent>('beforeCut');
+  static const ViewEventStreamProvider<DomEvent> beforePaste = const ViewEventStreamProvider<DomEvent>('beforePaste');
+  static const ViewEventStreamProvider<DomEvent> blur = const ViewEventStreamProvider<DomEvent>('blur');
   //DomEvent, change
-  static const ViewEventStreamProvider<DomEvent> click
-    = const ViewEventStreamProvider<DomEvent>('click');
-  static const ViewEventStreamProvider<DomEvent> contextMenu
-    = const ViewEventStreamProvider<DomEvent>('contextMenu');
-  static const ViewEventStreamProvider<DomEvent> copy
-    = const ViewEventStreamProvider<DomEvent>('copy');
-  static const ViewEventStreamProvider<DomEvent> cut
-    = const ViewEventStreamProvider<DomEvent>('cut');
-  static const ViewEventStreamProvider<DomEvent> doubleClick
-    = const ViewEventStreamProvider<DomEvent>('dblclick');
-  static const ViewEventStreamProvider<DomEvent> drag
-    = const ViewEventStreamProvider<DomEvent>('drag');
-  static const ViewEventStreamProvider<DomEvent> dragEnd
-    = const ViewEventStreamProvider<DomEvent>('dragEnd');
-  static const ViewEventStreamProvider<DomEvent> dragEnter
-    = const ViewEventStreamProvider<DomEvent>('dragEnter');
-  static const ViewEventStreamProvider<DomEvent> dragLeave
-    = const ViewEventStreamProvider<DomEvent>('dragLeave');
-  static const ViewEventStreamProvider<DomEvent> dragOver
-    = const ViewEventStreamProvider<DomEvent>('dragOver');
-  static const ViewEventStreamProvider<DomEvent> dragStart
-    = const ViewEventStreamProvider<DomEvent>('dragStart');
-  static const ViewEventStreamProvider<DomEvent> drop
-    = const ViewEventStreamProvider<DomEvent>('drop');
-  static const ViewEventStreamProvider<DomEvent> error
-    = const ViewEventStreamProvider<DomEvent>('error');
-  static const ViewEventStreamProvider<DomEvent> focus
-    = const ViewEventStreamProvider<DomEvent>('focus');
-  static const ViewEventStreamProvider<DomEvent> input
-    = const ViewEventStreamProvider<DomEvent>('input');
-  static const ViewEventStreamProvider<DomEvent> invalid
-    = const ViewEventStreamProvider<DomEvent>('invalid');
-  static const ViewEventStreamProvider<DomEvent> keyDown
-    = const ViewEventStreamProvider<DomEvent>('keyDown');
-  static const ViewEventStreamProvider<DomEvent> keyPress
-    = const ViewEventStreamProvider<DomEvent>('keyPress');
-  static const ViewEventStreamProvider<DomEvent> keyUp
-    = const ViewEventStreamProvider<DomEvent>('keyUp');
-  static const ViewEventStreamProvider<DomEvent> load
-    = const ViewEventStreamProvider<DomEvent>('load');
-  static const ViewEventStreamProvider<DomEvent> mouseDown
-    = const ViewEventStreamProvider<DomEvent>('mouseDown');
-  static const ViewEventStreamProvider<DomEvent> mouseMove
-    = const ViewEventStreamProvider<DomEvent>('mouseMove');
-  static const ViewEventStreamProvider<DomEvent> mouseOut
-    = const ViewEventStreamProvider<DomEvent>('mouseOut');
-  static const ViewEventStreamProvider<DomEvent> mouseOver
-    = const ViewEventStreamProvider<DomEvent>('mouseOver');
-  static const ViewEventStreamProvider<DomEvent> mouseUp
-    = const ViewEventStreamProvider<DomEvent>('mouseUp');
-  static const ViewEventStreamProvider<DomEvent> mouseWheel
-    = const ViewEventStreamProvider<DomEvent>('mouseWheel');
-  static const ViewEventStreamProvider<DomEvent> paste
-    = const ViewEventStreamProvider<DomEvent>('paste');
-  static const ViewEventStreamProvider<DomEvent> reset
-    = const ViewEventStreamProvider<DomEvent>('reset');
-  static const ViewEventStreamProvider<DomEvent> scroll
-    = const ViewEventStreamProvider<DomEvent>('scroll');
-  static const ViewEventStreamProvider<DomEvent> search
-    = const ViewEventStreamProvider<DomEvent>('search');
+  static const ViewEventStreamProvider<DomEvent> click = const ViewEventStreamProvider<DomEvent>('click');
+  static const ViewEventStreamProvider<DomEvent> contextMenu = const ViewEventStreamProvider<DomEvent>('contextMenu');
+  static const ViewEventStreamProvider<DomEvent> copy = const ViewEventStreamProvider<DomEvent>('copy');
+  static const ViewEventStreamProvider<DomEvent> cut = const ViewEventStreamProvider<DomEvent>('cut');
+  static const ViewEventStreamProvider<DomEvent> doubleClick = const ViewEventStreamProvider<DomEvent>('dblclick');
+  static const ViewEventStreamProvider<DomEvent> drag = const ViewEventStreamProvider<DomEvent>('drag');
+  static const ViewEventStreamProvider<DomEvent> dragEnd = const ViewEventStreamProvider<DomEvent>('dragEnd');
+  static const ViewEventStreamProvider<DomEvent> dragEnter = const ViewEventStreamProvider<DomEvent>('dragEnter');
+  static const ViewEventStreamProvider<DomEvent> dragLeave = const ViewEventStreamProvider<DomEvent>('dragLeave');
+  static const ViewEventStreamProvider<DomEvent> dragOver = const ViewEventStreamProvider<DomEvent>('dragOver');
+  static const ViewEventStreamProvider<DomEvent> dragStart = const ViewEventStreamProvider<DomEvent>('dragStart');
+  static const ViewEventStreamProvider<DomEvent> drop = const ViewEventStreamProvider<DomEvent>('drop');
+  static const ViewEventStreamProvider<DomEvent> error = const ViewEventStreamProvider<DomEvent>('error');
+  static const ViewEventStreamProvider<DomEvent> focus = const ViewEventStreamProvider<DomEvent>('focus');
+  static const ViewEventStreamProvider<DomEvent> input = const ViewEventStreamProvider<DomEvent>('input');
+  static const ViewEventStreamProvider<DomEvent> invalid = const ViewEventStreamProvider<DomEvent>('invalid');
+  static const ViewEventStreamProvider<DomEvent> keyDown = const ViewEventStreamProvider<DomEvent>('keyDown');
+  static const ViewEventStreamProvider<DomEvent> keyPress = const ViewEventStreamProvider<DomEvent>('keyPress');
+  static const ViewEventStreamProvider<DomEvent> keyUp = const ViewEventStreamProvider<DomEvent>('keyUp');
+  static const ViewEventStreamProvider<DomEvent> load = const ViewEventStreamProvider<DomEvent>('load');
+  static const ViewEventStreamProvider<DomEvent> mouseDown = const ViewEventStreamProvider<DomEvent>('mouseDown');
+  static const ViewEventStreamProvider<DomEvent> mouseMove = const ViewEventStreamProvider<DomEvent>('mouseMove');
+  static const ViewEventStreamProvider<DomEvent> mouseOut = const ViewEventStreamProvider<DomEvent>('mouseOut');
+  static const ViewEventStreamProvider<DomEvent> mouseOver = const ViewEventStreamProvider<DomEvent>('mouseOver');
+  static const ViewEventStreamProvider<DomEvent> mouseUp = const ViewEventStreamProvider<DomEvent>('mouseUp');
+  static const ViewEventStreamProvider<DomEvent> mouseWheel = const ViewEventStreamProvider<DomEvent>('mouseWheel');
+  static const ViewEventStreamProvider<DomEvent> paste = const ViewEventStreamProvider<DomEvent>('paste');
+  static const ViewEventStreamProvider<DomEvent> reset = const ViewEventStreamProvider<DomEvent>('reset');
+  static const ViewEventStreamProvider<DomEvent> scroll = const ViewEventStreamProvider<DomEvent>('scroll');
+  static const ViewEventStreamProvider<DomEvent> search = const ViewEventStreamProvider<DomEvent>('search');
   //DomEvent, select
-  static const ViewEventStreamProvider<DomEvent> selectStart
-    = const ViewEventStreamProvider<DomEvent>('selectStart');
-  static const ViewEventStreamProvider<DomEvent> submit
-    = const ViewEventStreamProvider<DomEvent>('submit');
-  static const ViewEventStreamProvider<DomEvent> touchCancel
-    = const ViewEventStreamProvider<DomEvent>('touchCancel');
-  static const ViewEventStreamProvider<DomEvent> touchEnd
-    = const ViewEventStreamProvider<DomEvent>('touchEnd');
-  static const ViewEventStreamProvider<DomEvent> touchEnter
-    = const ViewEventStreamProvider<DomEvent>('touchEnter');
-  static const ViewEventStreamProvider<DomEvent> touchLeave
-    = const ViewEventStreamProvider<DomEvent>('touchLeave');
-  static const ViewEventStreamProvider<DomEvent> touchMove
-    = const ViewEventStreamProvider<DomEvent>('touchMove');
-  static const ViewEventStreamProvider<DomEvent> touchStart
-    = const ViewEventStreamProvider<DomEvent>('touchStart');
-  static const ViewEventStreamProvider<DomEvent> transitionEnd
-    = const ViewEventStreamProvider<DomEvent>('webkitTransitionEnd');
-  static const ViewEventStreamProvider<DomEvent> fullscreenChange
-    = const ViewEventStreamProvider<DomEvent>('webkitFullscreenChange');
-  static const ViewEventStreamProvider<DomEvent> fullscreenError
-    = const ViewEventStreamProvider<DomEvent>('webkitFullscreenError');
+  static const ViewEventStreamProvider<DomEvent> selectStart = const ViewEventStreamProvider<DomEvent>('selectStart');
+  static const ViewEventStreamProvider<DomEvent> submit = const ViewEventStreamProvider<DomEvent>('submit');
+  static const ViewEventStreamProvider<DomEvent> touchCancel = const ViewEventStreamProvider<DomEvent>('touchCancel');
+  static const ViewEventStreamProvider<DomEvent> touchEnd = const ViewEventStreamProvider<DomEvent>('touchEnd');
+  static const ViewEventStreamProvider<DomEvent> touchEnter = const ViewEventStreamProvider<DomEvent>('touchEnter');
+  static const ViewEventStreamProvider<DomEvent> touchLeave = const ViewEventStreamProvider<DomEvent>('touchLeave');
+  static const ViewEventStreamProvider<DomEvent> touchMove = const ViewEventStreamProvider<DomEvent>('touchMove');
+  static const ViewEventStreamProvider<DomEvent> touchStart = const ViewEventStreamProvider<DomEvent>('touchStart');
+  static const ViewEventStreamProvider<DomEvent> transitionEnd = const ViewEventStreamProvider<DomEvent>('webkitTransitionEnd');
+  static const ViewEventStreamProvider<DomEvent> fullscreenChange = const ViewEventStreamProvider<DomEvent>('webkitFullscreenChange');
+  static const ViewEventStreamProvider<DomEvent> fullscreenError = const ViewEventStreamProvider<DomEvent>('webkitFullscreenError');
 }
 
 ///A map of [ViewEvent] streams

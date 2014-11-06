@@ -31,11 +31,12 @@ class DraggerState extends GestureState {
   Point _elementPosition;
   int _time;
 
-  DraggerState._(this.dragger, this.draggedElement, Point targetPosition, 
-  DragGestureState gstate) :
-  gestureState = gstate, eventTarget = gstate.eventTarget, startTime = gstate.time,
-  elementStartPosition = targetPosition,
-  _gestureStartPosition = gstate.position {
+  DraggerState._(this.dragger, this.draggedElement, Point targetPosition, DragGestureState gstate)
+      : gestureState = gstate,
+        eventTarget = gstate.eventTarget,
+        startTime = gstate.time,
+        elementStartPosition = targetPosition,
+        _gestureStartPosition = gstate.position {
     _vp = new VelocityProvider(elementStartPosition, startTime);
   }
 
@@ -46,21 +47,21 @@ class DraggerState extends GestureState {
 
   /** The associated [Dragger]. */
   final Dragger dragger;
-  
+
   /** The dragged Element. */
   final Element draggedElement;
-  
+
   /** The [DragGestureState] of the underlying [DragGesture], which supplies 
    * information of touch/cursor position, rather than element positions.
    */
   final DragGestureState gestureState;
-  
+
   /** The timestamp when this dragging movement starts. */
   final int startTime;
-  
+
   /** The initial element position (offset with respect to parent). */
   final Point elementStartPosition;
-  
+
   /** The current element position (offset with respect to parent). */
   Point get elementPosition => _elementPosition;
   /** The displacement of the touch/cursor position of this dragging. */
@@ -79,16 +80,17 @@ class DraggerState extends GestureState {
  * single-touch dragging on touch device or mouse dragging on PC.
  */
 class Dragger extends Gesture {
-  
+
   final DraggerStart _start;
   final DraggerMove _move;
   final DraggerEnd _end;
   DragGesture _drag;
   final bool _transform;
-  
-  bool _disabled = false, _pending = false;
+
+  bool _disabled = false;
+  bool _pending = false;
   DraggerState _state;
-  
+
   /** The owner of this Dragger. */
   final Element owner;
 
@@ -107,77 +109,69 @@ class Dragger extends Gesture {
    * + [move] Callback invoked continuously during dragging.
    * + [end] Callback invoked when dragging ends.
    */
-  Dragger(this.owner, {Element dragged(), 
-  Point snap(Point previousPosition, Point position), 
-  num threshold: -1, bool transform: false,
-  DraggerStart start, DraggerMove move, DraggerEnd end}) :
-  _transform = transform, _start = start, _move = move, _end = end {
-    
+  Dragger(this.owner, {Element dragged(), Point snap(Point previousPosition, Point position), num threshold: -1, bool transform: false, DraggerStart start, DraggerMove move, DraggerEnd end})
+      : _transform = transform,
+        _start = start,
+        _move = move,
+        _end = end {
+
     _drag = new DragGesture(owner, start: (DragGestureState state) {
-      if (_disabled)
-        return false; 
+      if (_disabled) return false;
       _stop();
-      
-      if (_pending = threshold > 0)
-        return true;
-      
+
+      if (_pending = threshold > 0) return true;
+
       return _initState(dragged, state);
-      
+
     }, move: (DragGestureState state) {
       if (_pending && Points.norm(state.transition) > threshold) {
         _pending = false;
         return _initState(dragged, state);
       }
-      
+
       if (_state != null) {
         // calculate element position
         Point oldElemPos = _state.elementPosition;
-        Point elemPos = 
-            _state.elementStartPosition + state.position - _state._gestureStartPosition;
-        if (snap != null)
-          elemPos = snap(oldElemPos, elemPos);
-        
+        Point elemPos = _state.elementStartPosition + state.position - _state._gestureStartPosition;
+        if (snap != null) elemPos = snap(oldElemPos, elemPos);
+
         // update state
         _state.snapshot(elemPos, state.time);
-        
+
         // callback, update element position
         if (_move != null) {
           if (identical(_move(_state, () => setElementPosition_(_state.draggedElement, elemPos)), false)) {
             _stop();
             return false; // stop gesture
           }
-        } else
-          setElementPosition_(_state.draggedElement, elemPos);
-        
+        } else setElementPosition_(_state.draggedElement, elemPos);
+
       }
-      
+
     }, end: (DragGestureState state) {
-      if (_state != null && _end != null)
-        _end(_state);
-      
+      if (_state != null && _end != null) _end(_state);
+
     });
-    
+
   }
-  
+
   bool _initState(Element dragged(), DragGestureState state) {
     Element tar = dragged != null ? dragged() : owner;
-    if (tar == null)
-      return false;
-    
+    if (tar == null) return false;
+
     _state = new DraggerState._(this, tar, getElementPosition_(tar), state);
     if (_start != null && identical(_start(_state), false)) {
       _stop();
       return false;
     }
-    
+
     return true;
   }
-  
+
   Point getElementPosition_(Element target) {
-    return _transform ? CssUtil.point3DOf(target.style.transform):
-    		DomUtil.position(target);
+    return _transform ? CssUtil.point3DOf(target.style.transform) : DomUtil.position(target);
   }
-  
+
   void setElementPosition_(Element target, Point position) {
     if (_transform) {
       target.style.transform = CssUtil.translate3d(position.x, position.y);
@@ -186,32 +180,28 @@ class Dragger extends Gesture {
       target.style.top = CssUtil.px(position.y);
     }
   }
-  
+
   void stop() {
-    if (_drag != null)
-      _drag.stop();
+    if (_drag != null) _drag.stop();
     _stop();
   }
-  
+
   void _stop() { // stop locally
     _state = null;
     _pending = false;
   }
-  
+
   void destroy() {
-    if (_drag != null)
-      _drag.destroy();
+    if (_drag != null) _drag.destroy();
     _drag = null;
   }
-  
+
   void disable() {
     _stop();
-    if (_drag != null)
-      _drag.disable();
+    if (_drag != null) _drag.disable();
   }
-  
+
   void enable() {
-    if (_drag != null)
-      _drag.enable();
+    if (_drag != null) _drag.enable();
   }
 }

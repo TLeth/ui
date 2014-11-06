@@ -9,8 +9,7 @@ part of rikulo_view;
  */
 class TextArea extends View implements Input<String> {
   TextArea([String value]) {
-    if (value != null && !value.isEmpty)
-      this.value = value;
+    if (value != null && !value.isEmpty) this.value = value;
   }
 
   /** Returns the TEXTAREA element in this view.
@@ -57,8 +56,7 @@ class TextArea extends View implements Input<String> {
    */
   void set autofocus(bool autofocus) {
     final inp = inputNode..autofocus = _b(autofocus);
-    if (autofocus && inDocument)
-      inp.focus();
+    if (autofocus && inDocument) inp.focus();
   }
 
   /** Returns a short hint that describes this text box.

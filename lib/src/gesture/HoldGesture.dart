@@ -18,9 +18,10 @@ class HoldGestureState extends GestureState {
   final int startTime;
   Timer _timer;
   int _time;
-  
-  HoldGestureState._(this.gesture, this.eventTarget, int time, this.position) : 
-  _time = time, this.startTime = time;
+
+  HoldGestureState._(this.gesture, this.eventTarget, int time, this.position)
+      : _time = time,
+        this.startTime = time;
 
   @override
   final EventTarget eventTarget;
@@ -29,7 +30,7 @@ class HoldGestureState extends GestureState {
 
   /** The associated [HoldGesture]. */
   final HoldGesture gesture;
-  
+
   /** The touch point's offset relative to the whole document.
    */
   final Point position;
@@ -45,7 +46,7 @@ abstract class HoldGesture extends Gesture {
   final HoldGestureAction _action;
   HoldGestureState _state;
   bool _disabled = false;
-  
+
   /** Constructor.
    *
    * + [start] is the callback before starting monitoring the touch-and-hold
@@ -56,64 +57,58 @@ abstract class HoldGesture extends Gesture {
    * + [movementLimit] is the allowed movement to consider if a user is holding a touch.
    * Default: 3 (unit: pixels)
    */
-  factory HoldGesture(Element owner, HoldGestureAction action,
-  {HoldGestureStart start, int duration: 1000, num movementLimit: 3}) {
-    return browser.touch ?
-      new _TouchHoldGesture(owner, action, start, duration, movementLimit):
-      new _MouseHoldGesture(owner, action, start, duration, movementLimit);
+  factory HoldGesture(Element owner, HoldGestureAction action, {HoldGestureStart start, int duration: 1000, num movementLimit: 3}) {
+    return browser.touch ? new _TouchHoldGesture(owner, action, start, duration, movementLimit) : new _MouseHoldGesture(owner, action, start, duration, movementLimit);
   }
-  
-  HoldGesture._init(this.owner, this._action, this._start, this._duration, 
-  this._movementLimit) {
+
+  HoldGesture._init(this.owner, this._action, this._start, this._duration, this._movementLimit) {
     _listen();
   }
-  
+
   /** The element that owns this handler.
    */
   final Element owner;
 
-  @override  
+  @override
   void destroy() {
     _stop();
     _unlisten();
   }
-  @override  
+  @override
   void stop() {
     _stop();
   }
-  @override  
+  @override
   void disable() {
     _stop();
     _disabled = true;
   }
-  @override  
+  @override
   void enable() {
     _disabled = false;
   }
-  
+
   void _listen();
   void _unlisten();
-  
+
   void _touchStart(EventTarget target, int time, Point position) {
-    if (_disabled)
-      return;
-    
+    if (_disabled) return;
+
     _stop();
     _state = new HoldGestureState._(this, target, time, position);
-    
+
     if (_start != null && identical(_start(_state), false)) {
       _stop();
       return;
     }
-    
+
     _state._timer = new Timer(new Duration(milliseconds: _duration), _call);
   }
   void _touchMove(int time, Point position) {
-    if (_state != null && Points.norm(position - _state.position) > _movementLimit)
-      _stop();
+    if (_state != null && Points.norm(position - _state.position) > _movementLimit) _stop();
   }
   void _touchEnd() => _stop();
-  
+
   void _call() {
     final HoldGestureState state = _state;
     _stop();
@@ -136,18 +131,16 @@ abstract class HoldGesture extends Gesture {
 /** The touch-and-hold handler for touch devices.
  */
 class _TouchHoldGesture extends HoldGesture {
-  StreamSubscription<Event> _subStart, _subMove, _subEnd;
+  StreamSubscription<Event> _subStart;
+  StreamSubscription<Event> _subMove;
+  StreamSubscription<Event> _subEnd;
 
-  _TouchHoldGesture(Element owner, HoldGestureAction action,
-  HoldGestureStart start, int duration, num movementLimit) : 
-  super._init(owner, action, start, duration, movementLimit);
-  
+  _TouchHoldGesture(Element owner, HoldGestureAction action, HoldGestureStart start, int duration, num movementLimit) : super._init(owner, action, start, duration, movementLimit);
+
   void _listen() {
     _subStart = owner.onTouchStart.listen((TouchEvent event) {
-      if (event.touches.length > 1)
-        _touchEnd(); //ignore multiple fingers
-      else
-        _touchStart(event.target, event.timeStamp, event.page);
+      if (event.touches.length > 1) _touchEnd(); //ignore multiple fingers
+      else _touchStart(event.target, event.timeStamp, event.page);
     });
     _subMove = document.onTouchMove.listen((TouchEvent event) {
       _touchMove(event.timeStamp, event.page);
@@ -174,12 +167,12 @@ class _TouchHoldGesture extends HoldGesture {
 /** The touch-and-hold handler for mouse-based devices.
  */
 class _MouseHoldGesture extends HoldGesture {
-  StreamSubscription<Event> _subStart, _subMove, _subEnd;
-  
-  _MouseHoldGesture(Element owner, HoldGestureAction action,
-  HoldGestureStart start, int duration, num movementLimit) : 
-  super._init(owner, action, start, duration, movementLimit);
-  
+  StreamSubscription<Event> _subStart;
+  StreamSubscription<Event> _subMove;
+  StreamSubscription<Event> _subEnd;
+
+  _MouseHoldGesture(Element owner, HoldGestureAction action, HoldGestureStart start, int duration, num movementLimit) : super._init(owner, action, start, duration, movementLimit);
+
   void _listen() {
     _subStart = owner.onMouseDown.listen((MouseEvent event) {
       _touchStart(event.target, event.timeStamp, event.page);

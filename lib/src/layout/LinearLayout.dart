@@ -9,16 +9,13 @@ part of rikulo_layout;
  * [LayoutDeclaration.orient]. If not specified, it is default to `horizontal`.
  */
 class LinearLayout extends AbstractLayout {
-  int measureWidth(MeasureContext mctx, View view)
-  => _linearHandler(view).measureWidth(mctx, view);
-  int measureHeight(MeasureContext mctx, View view)
-  => _linearHandler(view).measureHeight(mctx, view);
+  int measureWidth(MeasureContext mctx, View view) => _linearHandler(view).measureWidth(mctx, view);
+  int measureHeight(MeasureContext mctx, View view) => _linearHandler(view).measureHeight(mctx, view);
 
-  void doLayout_(MeasureContext mctx, View view, List<View> children)
-  => _linearHandler(view).doLayout(mctx, view, children);
+  void doLayout_(MeasureContext mctx, View view, List<View> children) => _linearHandler(view).doLayout(mctx, view, children);
 }
 _LinearHandler _linearHandler(view) //horizontal is default
-=> view.layout.orient != "vertical" ? new _HLayout(): new _VLayout();
+=> view.layout.orient != "vertical" ? new _HLayout() : new _VLayout();
 
 abstract class _LinearHandler {
   int measureWidth(MeasureContext mctx, View view);
@@ -32,25 +29,24 @@ abstract class _LinearHandler {
 class _HLayout extends _LinearHandler {
   int measureWidth(MeasureContext mctx, View view) {
     final int va = mctx.getWidthByApp(view);
-    if (va != null)
-      return va;
+    if (va != null) return va;
 
     final spcinf = new SideInfo(view.layout.spacing, _SPACING);
     final gapinf = new SideInfo(view.layout.gap);
     final defpwd = view.layout.width;
-    int width = 0, prevSpacing;
+    int width = 0;
+    int prevSpacing;
     for (final View child in view.children) {
-      if (!view.shallLayout_(child) || child.profile.anchorView != null)
-        continue; //ignore anchored
+      if (!view.shallLayout_(child) || child.profile.anchorView != null) continue; //ignore anchored
 
       //add spacing to width
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
-      width += prevSpacing == null ? si.left: //first
-        gapinf.left != null ? gapinf.left: max(prevSpacing, si.left);
+      width += prevSpacing == null ? si.left : //first
+      gapinf.left != null ? gapinf.left : max(prevSpacing, si.left);
       prevSpacing = si.right;
 
       final pwd = child.profile.width;
-      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd: pwd);
+      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd : pwd);
       switch (amt.type) {
         case AmountType.FIXED:
           width += amt.value;
@@ -58,9 +54,8 @@ class _HLayout extends _LinearHandler {
         case AmountType.NONE:
         case AmountType.CONTENT:
           final int wapp = mctx.getWidthByApp(child);
-          final int wd = wapp != null && amt.type != AmountType.CONTENT ? 
-              wapp : child.measureWidth_(mctx);
-          width += wd != null ? wd: child.offsetWidth;
+          final int wd = wapp != null && amt.type != AmountType.CONTENT ? wapp : child.measureWidth_(mctx);
+          width += wd != null ? wd : child.offsetWidth;
           break;
         case AmountType.IGNORE:
           width += child.offsetWidth;
@@ -69,28 +64,25 @@ class _HLayout extends _LinearHandler {
       }
     }
 
-    width += mctx.getBorderWidth(view)
-      + (prevSpacing != null ? prevSpacing: spcinf.left + spcinf.right);
+    width += mctx.getBorderWidth(view) + (prevSpacing != null ? prevSpacing : spcinf.left + spcinf.right);
     return width;
   }
   int measureHeight(MeasureContext mctx, View view) {
     final int va = mctx.getHeightByApp(view);
-    if (va != null)
-      return va;
+    if (va != null) return va;
 
     final spcinf = new SideInfo(view.layout.spacing, _SPACING);
     final String defphgh = view.layout.height;
     final int borderHgh = mctx.getBorderHeight(view);
     int height;
     for (final View child in view.children) {
-      if (!view.shallLayout_(child) || child.profile.anchorView != null)
-        continue; //ignore anchored
+      if (!view.shallLayout_(child) || child.profile.anchorView != null) continue; //ignore anchored
 
       //add spacing to width
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
       int hgh = si.top + si.bottom + borderHgh; //spacing of border
       final phgh = child.profile.height;
-      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh: phgh);
+      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh : phgh);
       switch (amt.type) {
         case AmountType.FIXED:
           hgh += amt.value;
@@ -98,9 +90,8 @@ class _HLayout extends _LinearHandler {
         case AmountType.NONE:
         case AmountType.CONTENT:
           final happ = mctx.getHeightByApp(child);
-          final int h = happ != null && amt.type != AmountType.CONTENT ? 
-              happ : child.measureHeight_(mctx);
-          hgh += h != null ? h: child.offsetHeight;
+          final int h = happ != null && amt.type != AmountType.CONTENT ? happ : child.measureHeight_(mctx);
+          hgh += h != null ? h : child.offsetHeight;
           break;
         case AmountType.IGNORE:
           hgh += child.offsetHeight;
@@ -109,8 +100,7 @@ class _HLayout extends _LinearHandler {
           continue; //ignore if flex or ratio is used
       }
 
-      if (height == null || hgh > height)
-        height = hgh;
+      if (height == null || hgh > height) height = hgh;
     }
     return height;
   }
@@ -123,7 +113,9 @@ class _HLayout extends _LinearHandler {
     final Map<View, SideInfo> childspcinfs = new HashMap();
     final List<View> flexViews = new List();
     final List<int> flexs = new List();
-    int nflex = 0, assigned = 0, prevSpacing;
+    int nflex = 0;
+    int prevSpacing;
+    int assigned = 0;
     for (final View child in children) {
       if (!view.shallLayout_(child)) {
         mctx.setWidthByProfile(child, () => view.clientWidth);
@@ -133,12 +125,12 @@ class _HLayout extends _LinearHandler {
 
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
       childspcinfs[child] = si;
-      assigned += prevSpacing == null ? si.left: //first
-        gapinf.left != null ? gapinf.left: max(prevSpacing, si.left);
+      assigned += prevSpacing == null ? si.left : //first
+      gapinf.left != null ? gapinf.left : max(prevSpacing, si.left);
       prevSpacing = si.right;
 
       final pwd = child.profile.width;
-      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd: pwd);
+      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd : pwd);
       switch (amt.type) {
         case AmountType.FIXED:
           assigned += child.width = amt.value;
@@ -157,35 +149,32 @@ class _HLayout extends _LinearHandler {
           break;
         default:
           int wdapp;
-          if (amt.type == AmountType.NONE
-          && (wdapp = mctx.getWidthByApp(child)) != null)
-            assigned += wdapp;
-          else {
+          if (amt.type == AmountType.NONE && (wdapp = mctx.getWidthByApp(child)) != null) assigned += wdapp; else {
             final int wd = child.measureWidth_(mctx);
-            if (wd != null)
-              assigned += child.width = wd;
-            else
-              assigned += child.offsetWidth;
+            if (wd != null) assigned += child.width = wd; else assigned += child.offsetWidth;
           }
           break;
       }
 
-      mctx.setHeightByProfile(child,
-        () => view.clientHeight - si.top - si.bottom); //subtract spacing from borders
+      mctx.setHeightByProfile(child, () => view.clientHeight - si.top - si.bottom); //subtract spacing from borders
     }
 
     //1a) size flex
     if (nflex > 0) {
       int space = view.clientWidth - assigned - prevSpacing; //prevSpacing not null here
       double per = space / nflex;
-      for (int j = 0, len = flexs.length - 1;; ++j) {
-        if (j == len) { //last
-          flexViews[j].width = space;
-          break;
+      {
+        int j = 0;
+        int len = flexs.length - 1;
+        for ( ; ; ++j) {
+          if (j == len) { //last
+            flexViews[j].width = space;
+            break;
+          }
+          final int delta = (per * flexs[j]).round().toInt();
+          flexViews[j].width = delta;
+          space -= delta;
         }
-        final int delta = (per * flexs[j]).round().toInt();
-        flexViews[j].width = delta;
-        space -= delta;
       }
     }
 
@@ -194,12 +183,11 @@ class _HLayout extends _LinearHandler {
     prevSpacing = null;
     assigned = 0;
     for (final View child in children) {
-      if (!view.shallLayout_(child))
-        continue;
+      if (!view.shallLayout_(child)) continue;
 
       final si = childspcinfs[child];
-      child.left = assigned += prevSpacing == null ? si.left: //first
-        gapinf.left != null ? gapinf.left: max(prevSpacing, si.left);
+      child.left = assigned += prevSpacing == null ? si.left : //first
+      gapinf.left != null ? gapinf.left : max(prevSpacing, si.left);
       assigned += child.offsetWidth;
       prevSpacing = si.right;
 
@@ -212,7 +200,7 @@ class _HLayout extends _LinearHandler {
           int delta = view.clientHeight - si.top - si.bottom - child.offsetHeight;
           if (align == "center") delta ~/= 2;
           child.top = space + delta;
-          break; 
+          break;
         default:
           child.top = space;
           break;
@@ -227,25 +215,24 @@ class _HLayout extends _LinearHandler {
 class _VLayout extends _LinearHandler {
   int measureHeight(MeasureContext mctx, View view) {
     final int va = mctx.getHeightByApp(view);
-    if (va != null)
-      return va;
+    if (va != null) return va;
 
     final spcinf = new SideInfo(view.layout.spacing, _SPACING);
     final gapinf = new SideInfo(view.layout.gap);
     final defphgh = view.layout.height;
-    int height = 0, prevSpacing;
+    int height = 0;
+    int prevSpacing;
     for (final View child in view.children) {
-      if (!view.shallLayout_(child) || child.profile.anchorView != null)
-        continue; //ignore anchored
+      if (!view.shallLayout_(child) || child.profile.anchorView != null) continue; //ignore anchored
 
       //add spacing to height
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
-      height += prevSpacing == null ? si.top: //first
-        gapinf.top != null ? gapinf.top: max(prevSpacing, si.top);
+      height += prevSpacing == null ? si.top : //first
+      gapinf.top != null ? gapinf.top : max(prevSpacing, si.top);
       prevSpacing = si.bottom;
 
       final phgh = child.profile.height;
-      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh: phgh);
+      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh : phgh);
       switch (amt.type) {
         case AmountType.FIXED:
           height += amt.value;
@@ -253,9 +240,8 @@ class _VLayout extends _LinearHandler {
         case AmountType.NONE:
         case AmountType.CONTENT:
           final happ = mctx.getHeightByApp(child);
-          final int hgh = happ != null && amt.type != AmountType.CONTENT ? 
-              happ : child.measureHeight_(mctx);
-          height += hgh != null ? hgh: child.offsetHeight;
+          final int hgh = happ != null && amt.type != AmountType.CONTENT ? happ : child.measureHeight_(mctx);
+          height += hgh != null ? hgh : child.offsetHeight;
           break;
         case AmountType.IGNORE:
           height += child.offsetHeight;
@@ -264,28 +250,25 @@ class _VLayout extends _LinearHandler {
       }
     }
 
-    height += mctx.getBorderHeight(view)
-      + (prevSpacing != null ? prevSpacing: spcinf.top + spcinf.bottom);
+    height += mctx.getBorderHeight(view) + (prevSpacing != null ? prevSpacing : spcinf.top + spcinf.bottom);
     return height;
   }
   int measureWidth(MeasureContext mctx, View view) {
     final int va = mctx.getWidthByApp(view);
-    if (va != null)
-      return va;
+    if (va != null) return va;
 
     final spcinf = new SideInfo(view.layout.spacing, _SPACING);
     final defpwd = view.layout.width;
     final int borderWd = mctx.getBorderWidth(view);
     int width;
     for (final View child in view.children) {
-      if (!view.shallLayout_(child) || child.profile.anchorView != null)
-        continue; //ignore anchored
+      if (!view.shallLayout_(child) || child.profile.anchorView != null) continue; //ignore anchored
 
       //add spacing to height
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
       int wd = si.left + si.right + borderWd; //spacing of border
       final pwd = child.profile.width;
-      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd: pwd);
+      final amt = _getAmountInfo(child, pwd.isEmpty ? defpwd : pwd);
       switch (amt.type) {
         case AmountType.FIXED:
           wd += amt.value;
@@ -293,9 +276,8 @@ class _VLayout extends _LinearHandler {
         case AmountType.NONE:
         case AmountType.CONTENT:
           final int wapp = mctx.getWidthByApp(child);
-          final int w = wapp != null && amt.type != AmountType.CONTENT ? 
-              wapp : child.measureWidth_(mctx);
-          wd += w != null ? w: child.offsetWidth;
+          final int w = wapp != null && amt.type != AmountType.CONTENT ? wapp : child.measureWidth_(mctx);
+          wd += w != null ? w : child.offsetWidth;
           break;
         case AmountType.IGNORE:
           wd += child.offsetWidth;
@@ -304,8 +286,7 @@ class _VLayout extends _LinearHandler {
           continue; //ignore if flex or ratio is used
       }
 
-      if (width == null || wd > width)
-        width = wd;
+      if (width == null || wd > width) width = wd;
     }
     return width;
   }
@@ -318,7 +299,9 @@ class _VLayout extends _LinearHandler {
     final Map<View, SideInfo> childspcinfs = new HashMap();
     final List<View> flexViews = new List();
     final List<int> flexs = new List();
-    int nflex = 0, assigned = 0, prevSpacing;
+    int nflex = 0;
+    int prevSpacing;
+    int assigned = 0;
     for (final View child in children) {
       if (!view.shallLayout_(child)) {
         mctx.setWidthByProfile(child, () => view.clientWidth);
@@ -328,12 +311,12 @@ class _VLayout extends _LinearHandler {
 
       final si = new SideInfo(child.profile.spacing, 0, spcinf);
       childspcinfs[child] = si;
-      assigned += prevSpacing == null ? si.top: //first
-        gapinf.top != null ? gapinf.top: max(prevSpacing, si.top);
+      assigned += prevSpacing == null ? si.top : //first
+      gapinf.top != null ? gapinf.top : max(prevSpacing, si.top);
       prevSpacing = si.bottom;
 
       final phgh = child.profile.height;
-      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh: phgh);
+      final amt = _getAmountInfo(child, phgh.isEmpty ? defphgh : phgh);
       switch (amt.type) {
         case AmountType.FIXED:
           assigned += child.height = amt.value;
@@ -352,35 +335,32 @@ class _VLayout extends _LinearHandler {
           break;
         default:
           int hghapp;
-          if (amt.type == AmountType.NONE
-          && (hghapp = mctx.getHeightByApp(child)) != null)
-            assigned += hghapp;
-          else {
+          if (amt.type == AmountType.NONE && (hghapp = mctx.getHeightByApp(child)) != null) assigned += hghapp; else {
             final int hgh = child.measureHeight_(mctx);
-            if (hgh != null)
-              assigned += child.height = hgh;
-            else
-              assigned += child.offsetHeight;
+            if (hgh != null) assigned += child.height = hgh; else assigned += child.offsetHeight;
           }
           break;
       }
 
-      mctx.setWidthByProfile(child,
-        () => view.clientWidth - si.left - si.right); //subtract spacing from border
+      mctx.setWidthByProfile(child, () => view.clientWidth - si.left - si.right); //subtract spacing from border
     }
 
     //1a) size flex
     if (nflex > 0) {
       int space = view.clientHeight - assigned - prevSpacing; //prevSpacing must not null
       double per = space / nflex;
-      for (int j = 0, len = flexs.length - 1;; ++j) {
-        if (j == len) { //last
-          flexViews[j].height = space;
-          break;
+      {
+        int j = 0;
+        int len = flexs.length - 1;
+        for ( ; ; ++j) {
+          if (j == len) { //last
+            flexViews[j].height = space;
+            break;
+          }
+          final int delta = (per * flexs[j]).round().toInt();
+          flexViews[j].height = delta;
+          space -= delta;
         }
-        final int delta = (per * flexs[j]).round().toInt();
-        flexViews[j].height = delta;
-        space -= delta;
       }
     }
 
@@ -389,12 +369,11 @@ class _VLayout extends _LinearHandler {
     prevSpacing = null;
     assigned = 0;
     for (final View child in children) {
-      if (!view.shallLayout_(child))
-        continue;
+      if (!view.shallLayout_(child)) continue;
 
       final si = childspcinfs[child];
-      child.top = assigned += prevSpacing == null ? si.top: //first
-        gapinf.top != null ? gapinf.top: max(prevSpacing, si.top);
+      child.top = assigned += prevSpacing == null ? si.top : //first
+      gapinf.top != null ? gapinf.top : max(prevSpacing, si.top);
       assigned += child.offsetHeight;
       prevSpacing = si.bottom;
 
@@ -407,7 +386,7 @@ class _VLayout extends _LinearHandler {
           int delta = view.clientWidth - si.left - si.right - child.offsetWidth;
           if (align == "center") delta ~/= 2;
           child.left = space + delta;
-          break; 
+          break;
         default:
           child.left = space;
           break;

@@ -12,8 +12,7 @@ part of rikulo_view;
  * there won't be much performance overhead.
  */
 void printc(var msg) {
-  if (_printc == null)
-    _printc = new _Printc();
+  if (_printc == null) _printc = new _Printc();
   _printc.print(msg);
 }
 _Printc _printc;
@@ -34,8 +33,7 @@ class _Printc {
     if (_node == null) {
       final Element db = document.query("#v-dashboard");
       if (db == null) { //not in simulator
-        _node = new Element.html(
-  '<div class="v-printc-x"></div>');
+        _node = new Element.html('<div class="v-printc-x"></div>');
         document.body.children.add(_node);
       } else { //running in simulator
         _node = db.query(".v-printc");
@@ -74,8 +72,7 @@ class _Printc {
     };
   }
   HoldGestureStart _gestureStart() {
-    return (HoldGestureState state)
-      => _popup == null || !DomUtil.isDescendant(state.eventTarget, _popup._node);
+    return (HoldGestureState state) => _popup == null || !DomUtil.isDescendant(state.eventTarget, _popup._node);
   }
 
   void _defer() {
@@ -94,23 +91,32 @@ class _Printc {
       final StringBuffer sb = new StringBuffer();
       for (final _PrintcMsg msg in _msgs) {
         final DateTime time = msg.t;
-        sb..write(time.hour)..write(':')..write(time.minute)..write(':')..write(time.second);
-        if (_lastLogTime != null)
-          sb..write('>')..write((time.millisecondsSinceEpoch - _lastLogTime)/1000);
+        sb
+            ..write(time.hour)
+            ..write(':')
+            ..write(time.minute)
+            ..write(':')
+            ..write(time.second);
+        if (_lastLogTime != null) sb
+            ..write('>')
+            ..write((time.millisecondsSinceEpoch - _lastLogTime) / 1000);
         _lastLogTime = time.millisecondsSinceEpoch;
-        sb..write(': ')..write(msg.m)..write('\n');
+        sb
+            ..write(': ')
+            ..write(msg.m)
+            ..write('\n');
       }
       _msgs.clear();
 
-      _node.insertAdjacentHtml("beforeEnd", XmlUtil.encode(sb.toString()));;
+      _node.insertAdjacentHtml("beforeEnd", XmlUtil.encode(sb.toString()));
+      ;
       _node.scrollTop = 30000;
     }
   }
   static int _lastLogTime;
 
   void close() {
-    if (_popup != null)
-      _popup.close();
+    if (_popup != null) _popup.close();
     if (_node != null) {
       _node.remove();
       _node = null;
@@ -120,8 +126,10 @@ class _Printc {
 class _PrintcMsg {
   final String m;
   final DateTime t;
-  _PrintcMsg(var msg): m = "$msg", t = new DateTime.now();
-    //we have to 'snapshot' the value since it might be changed later
+  _PrintcMsg(var msg)
+      : m = "$msg",
+        t = new DateTime.now();
+  //we have to 'snapshot' the value since it might be changed later
 }
 class _PrintcPopup {
   final _Printc _owner;
@@ -131,18 +139,25 @@ class _PrintcPopup {
 
   _PrintcPopup(_Printc this._owner) {
     _elPopup = (event) {
-      if (_node != null && event.shallClose(_node))
-        close();
+      if (_node != null && event.shallClose(_node)) close();
     };
   }
   void open(int x, int y) {
     _node = new Element.html('<div style="left:${x+2}px;top:${y+2}px" class="v-printc-pp"><div>[]</div><div>+</div><div>-</div><div>x</div></div>');
 
     final elems = _node.children;
-    elems[0].onClick.listen((e) {_size("100%", "100%");});
-    elems[1].onClick.listen((e) {_size("100%", "30%");});
-    elems[2].onClick.listen((e) {_size("40%", "30%");});
-    elems[3].onClick.listen((e) {_owner.close();});
+    elems[0].onClick.listen((e) {
+      _size("100%", "100%");
+    });
+    elems[1].onClick.listen((e) {
+      _size("100%", "30%");
+    });
+    elems[2].onClick.listen((e) {
+      _size("40%", "30%");
+    });
+    elems[3].onClick.listen((e) {
+      _owner.close();
+    });
 
     _owner._node.children.add(_node);
     _subActivate = broadcaster.on.activate.listen(_elPopup);

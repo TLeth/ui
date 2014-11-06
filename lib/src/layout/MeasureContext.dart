@@ -25,18 +25,21 @@ class MeasureContext {
    * to set the height.
    */
   final Map<View, int> heights;
-  final Map<View, int> _borderWds, _borderHghs;
+  final Map<View, int> _borderWds;
+  final Map<View, int> _borderHghs;
   Map<String, dynamic> _dataset;
   Size _windowSize;
 
-  MeasureContext(): widths = new HashMap(), heights = new HashMap(),
-  _borderWds = new HashMap(), _borderHghs = new HashMap();
+  MeasureContext()
+      : widths = new HashMap(),
+        heights = new HashMap(),
+        _borderWds = new HashMap(),
+        _borderHghs = new HashMap();
 
   ///Returns the inner size of the window.
   Size get windowSize {
     ///It assumes the window size won't change during layout
-    if (_windowSize == null)  
-      _windowSize = DomUtil.windowSize;
+    if (_windowSize == null) _windowSize = DomUtil.windowSize;
     return _windowSize;
   }
 
@@ -44,15 +47,13 @@ class MeasureContext {
    */
   int getBorderWidth(View view) {
     final v = _borderWds[view];
-    return v != null ? v: 
-      (_borderWds[view] = DomUtil.sumWidth(view.node, border:true));
+    return v != null ? v : (_borderWds[view] = DomUtil.sumWidth(view.node, border: true));
   }
   /** Returns the border's height (top border plus bottom border).
    */
   int getBorderHeight(View view) {
     final v = _borderHghs[view];
-    return v != null ? v:
-      (_borderHghs[view] = DomUtil.sumHeight(view.node, border:true));
+    return v != null ? v : (_borderHghs[view] = DomUtil.sumHeight(view.node, border: true));
   }
 
   /** Returns the value of the profile with the given name.
@@ -64,11 +65,8 @@ class MeasureContext {
   String getProfile(View view, String name) {
     String v = view.profile.getPropertyValue(name);
     if (v.isEmpty) {
-      if (view.parent != null
-      && view.parent.layout.handler.isProfileInherited)
-        v = view.parent.layout.getPropertyValue(name);
-      if (v.isEmpty && view.layout.handler.isFlex)
-        v = "flex";
+      if (view.parent != null && view.parent.layout.handler.isProfileInherited) v = view.parent.layout.getPropertyValue(name);
+      if (v.isEmpty && view.layout.handler.isFlex) v = "flex";
     }
     return v;
   }
@@ -95,15 +93,12 @@ class MeasureContext {
           _contentWd(view);
           break;
         case AmountType.NONE:
-        //Note: if NONE and app doesn't set width, it means content
+          //Note: if NONE and app doesn't set width, it means content
           if (getWidthByApp(view) == null) {
             //if view is root and a view group, we use flex
             int wd;
-            if (view.parent == null && !view.shallMeasureContent
-            && (wd = width()) > 0)
-              _flexWd(view, wd); //FLEX
-            else
-              _contentWd(view); //CONTENT
+            if (view.parent == null && !view.shallMeasureContent && (wd = width()) > 0) _flexWd(view, wd); //FLEX
+            else _contentWd(view); //CONTENT
           }
           break;
         case AmountType.IGNORE:
@@ -134,15 +129,12 @@ class MeasureContext {
           _contentHgh(view);
           break;
         case AmountType.NONE:
-        //Note: if NONE and app doesn't set height, it means content
+          //Note: if NONE and app doesn't set height, it means content
           if (getHeightByApp(view) == null) {
             //if view is root and a view group, we use flex
             int hgh;
-            if (view.parent == null && !view.shallMeasureContent
-            && (hgh = height()) > 0)
-              _flexHgh(view, hgh); //FLEX
-            else
-              _contentHgh(view); //CONTENT
+            if (view.parent == null && !view.shallMeasureContent && (hgh = height()) > 0) _flexHgh(view, hgh); //FLEX
+            else _contentHgh(view); //CONTENT
           }
           break;
         case AmountType.IGNORE:
@@ -161,38 +153,28 @@ class MeasureContext {
     //note: we always set width/height; otherwise it might wrap because of position
     //example: if we changed the width to 95% (rather than 70%), TextView will wrap
     final wd = view.measureWidth_(this);
-    if (wd != null)
-      view.width = wd; //no need to min/max since measureXxx shall handle it
+    if (wd != null) view.width = wd; //no need to min/max since measureXxx shall handle it
   }
   void _contentHgh(View view) {
     final hgh = view.measureHeight_(this);
-    if (hgh != null)
-      view.height = hgh; //no need to min/max since measureXxx shall handle it
+    if (hgh != null) view.height = hgh; //no need to min/max since measureXxx shall handle it
   }
-  int _minMaxWd(View view, int wd)
-  => _minMax(wd, getProfile(view, "min-width"), getProfile(view, "max-width"));
-  int _minMaxHgh(View view, int hgh)
-  => _minMax(hgh, getProfile(view, "min-height"), getProfile(view, "max-height"));
+  int _minMaxWd(View view, int wd) => _minMax(wd, getProfile(view, "min-width"), getProfile(view, "max-width"));
+  int _minMaxHgh(View view, int hgh) => _minMax(hgh, getProfile(view, "min-height"), getProfile(view, "max-height"));
 
   /** Measure the width of the given view.
    */
   int measureWidth(View view) {
     if (view.visible) {
       int wd = widths[view];
-      if (wd != null || widths.containsKey(view))
-        return wd;
+      if (wd != null || widths.containsKey(view)) return wd;
 
       wd = view.layout.handler.measureWidth(this, view);
 
-      final AsInt parentClientWidth =
-        () => view.parent != null ? view.parent.clientWidth: windowSize.width;
+      final AsInt parentClientWidth = () => view.parent != null ? view.parent.clientWidth : windowSize.width;
       int limit;
-      if ((limit = _amountOf(view.profile.maxWidth, parentClientWidth)) != null
-      && (wd == null || wd > limit))
-        wd = limit;
-      if ((limit = _amountOf(view.profile.minWidth, parentClientWidth)) != null
-      && (wd == null || wd < limit))
-        wd = limit;
+      if ((limit = _amountOf(view.profile.maxWidth, parentClientWidth)) != null && (wd == null || wd > limit)) wd = limit;
+      if ((limit = _amountOf(view.profile.minWidth, parentClientWidth)) != null && (wd == null || wd < limit)) wd = limit;
       return widths[view] = wd;
     }
     return 0;
@@ -202,19 +184,13 @@ class MeasureContext {
   int measureHeight(View view) {
     if (view.visible) {
       int hgh = heights[view];
-      if (hgh != null || heights.containsKey(view))
-        return hgh;
+      if (hgh != null || heights.containsKey(view)) return hgh;
 
       hgh = view.layout.handler.measureHeight(this, view);
-      final AsInt parentClientHeight =
-        () => view.parent != null ? view.parent.clientHeight: windowSize.height;
+      final AsInt parentClientHeight = () => view.parent != null ? view.parent.clientHeight : windowSize.height;
       int limit;
-      if ((limit = _amountOf(view.profile.maxHeight, parentClientHeight)) != null
-      && (hgh == null || hgh > limit))
-        hgh = limit;
-      if ((limit = _amountOf(view.profile.minHeight, parentClientHeight)) != null
-      && (hgh == null || hgh < limit))
-        hgh = limit;
+      if ((limit = _amountOf(view.profile.maxHeight, parentClientHeight)) != null && (hgh == null || hgh > limit)) hgh = limit;
+      if ((limit = _amountOf(view.profile.minHeight, parentClientHeight)) != null && (hgh == null || hgh < limit)) hgh = limit;
       return heights[view] = hgh;
     }
     return 0;
@@ -230,8 +206,7 @@ class MeasureContext {
    */
   int measureContentWidth(View view, bool autowidth) {
     final int wd = widths[view];
-    return wd != null || widths.containsKey(view) ?
-      wd: _measureContent(view, autowidth).width;
+    return wd != null || widths.containsKey(view) ? wd : _measureContent(view, autowidth).width;
   }
   /** Measures the height based on the view's content shown on the document.
    * It is an utility for implementing a view's [View.measureHeight_].
@@ -243,15 +218,15 @@ class MeasureContext {
    */
   int measureContentHeight(View view, bool autowidth) {
     final int hgh = heights[view];
-    return hgh != null || heights.containsKey(view) ?
-      hgh: _measureContent(view, autowidth).height;
+    return hgh != null || heights.containsKey(view) ? hgh : _measureContent(view, autowidth).height;
   }
   Size _measureContent(View view, bool autowidth) {
-    if (!view.visible)
-      return new Size(widths[view] = 0, heights[view] = 0);
+    if (!view.visible) return new Size(widths[view] = 0, heights[view] = 0);
 
     CssStyleDeclaration nodestyle;
-    String orgspace, orgwd, orghgh;
+    String orgspace;
+    String orghgh;
+    String orgwd;
     if (autowidth) {
       nodestyle = view.node.style;
       final String pos = nodestyle.position;
@@ -269,39 +244,28 @@ class MeasureContext {
       nodestyle.height = "";
     }
 
-    num width = view.node.offsetWidth, height = view.node.offsetHeight;
+    num width = view.node.offsetWidth;
+    num height = view.node.offsetHeight;
 
-    if (orgspace != null)
-      nodestyle.whiteSpace = orgspace; //restore
-    if (orgwd != null && !orgwd.isEmpty)
-      nodestyle.width = orgwd;
-    if (orghgh != null && !orghgh.isEmpty)
-      nodestyle.height = orghgh;
+    if (orgspace != null) nodestyle.whiteSpace = orgspace; //restore
+    if (orgwd != null && !orgwd.isEmpty) nodestyle.width = orgwd;
+    if (orghgh != null && !orghgh.isEmpty) nodestyle.height = orghgh;
 
-    final AsInt parentClientWidth =
-      () => view.parent != null ? view.parent.clientWidth: windowSize.width;
-    final AsInt parentClientHeight =
-      () => view.parent != null ? view.parent.clientHeight: windowSize.height;
+    final AsInt parentClientWidth = () => view.parent != null ? view.parent.clientWidth : windowSize.width;
+    final AsInt parentClientHeight = () => view.parent != null ? view.parent.clientHeight : windowSize.height;
 
     int limit = _amountOf(view.profile.maxWidth, parentClientWidth);
-    if ((autowidth && width > windowSize.width)
-    || (limit != null && width > limit)) {
-      nodestyle.width = CssUtil.px(limit != null ? limit: windowSize.width);
+    if ((autowidth && width > windowSize.width) || (limit != null && width > limit)) {
+      nodestyle.width = CssUtil.px(limit != null ? limit : windowSize.width);
 
       width = view.node.offsetWidth;
       height = view.node.offsetHeight;
       //Note: we don't restore the width such that browser will really limit the width
     }
 
-    if ((limit = _amountOf(view.profile.maxHeight, parentClientHeight)) != null
-    && height > limit)
-      height = limit;
-    if ((limit = _amountOf(view.profile.minWidth, parentClientWidth)) != null
-    && width < limit)
-      width = limit;
-    if ((limit = _amountOf(view.profile.minHeight, parentClientHeight)) != null
-    && height < limit)
-      height = limit;
+    if ((limit = _amountOf(view.profile.maxHeight, parentClientHeight)) != null && height > limit) height = limit;
+    if ((limit = _amountOf(view.profile.minWidth, parentClientWidth)) != null && width < limit) width = limit;
+    if ((limit = _amountOf(view.profile.minHeight, parentClientHeight)) != null && height < limit) height = limit;
 
     widths[view] = width;
     heights[view] = height;
@@ -311,13 +275,11 @@ class MeasureContext {
   /** Returns the left set by the applicaiton, or null if it is not set yet or set
    * by a layout.
    */
-  int getLeftByApp(View view)
-  => view.profile.anchorView == null && ViewImpl.isLeftByApp(view) ? view.left: null;
+  int getLeftByApp(View view) => view.profile.anchorView == null && ViewImpl.isLeftByApp(view) ? view.left : null;
   /** Returns the top set by the applicaiton, or null if it is not set yet or set
    * by a layout.
    */
-  int getTopByApp(View view)
-  => view.profile.anchorView == null && ViewImpl.isTopByApp(view) ? view.top: null;
+  int getTopByApp(View view) => view.profile.anchorView == null && ViewImpl.isTopByApp(view) ? view.top : null;
 
   /** Returns the width set by the applicaiton, or null if it is not set yet or set
    * by a layout.
@@ -329,7 +291,7 @@ class MeasureContext {
         return amtInf.value;
       case AmountType.NONE:
       case AmountType.IGNORE:
-        return ViewImpl.isWidthByApp(view) ? view.width: null;
+        return ViewImpl.isWidthByApp(view) ? view.width : null;
     }
   }
   /** Returns the height set by the applicaiton, or null if it is not set yet or set
@@ -342,7 +304,7 @@ class MeasureContext {
         return amtInf.value;
       case AmountType.NONE:
       case AmountType.IGNORE:
-        return ViewImpl.isHeightByApp(view) ? view.height: null;
+        return ViewImpl.isHeightByApp(view) ? view.height : null;
     }
   }
 
@@ -366,8 +328,7 @@ class MeasureContext {
    * Note: the name of the attribute can't start with "rk.", which is reserved
    * for internal use.
    */
-  Map<String, dynamic> get dataset
-  => _dataset != null ? _dataset: MapUtil.onDemand(() => _dataset = new HashMap());
+  Map<String, dynamic> get dataset => _dataset != null ? _dataset : MapUtil.onDemand(() => _dataset = new HashMap());
 }
 
 int _minMax(int v, String vmin, String vmax) {

@@ -39,10 +39,9 @@ class ProfileDeclaration extends Declaration {
    * siblings.
    */
   View get anchorView {
-    if (_anchorView != null)
-      return _anchorView;
+    if (_anchorView != null) return _anchorView;
     final anc = anchor;
-    return anc.isEmpty ? location.isEmpty ? null: _owner.parent: _owner.query(anc);
+    return anc.isEmpty ? location.isEmpty ? null : _owner.parent : _owner.query(anc);
   }
   /// The anchor view. There are two ways to assign an anchor view:
   void set anchorView(View view) {
@@ -52,13 +51,12 @@ class ProfileDeclaration extends Declaration {
     } else if (identical(view, _owner.parent)) {
       av = "parent";
     } else {
-      if (view != null
-      && view.parent != null && _owner.parent != null //parent might not be assigned yet
-      && !identical(view.parent, _owner.parent))
-        throw new UIError("Anchor can be parent or sibling, not $view");
-      if (identical(view, _owner))
-        throw new UIError("Anchor can't be itself, $view.");
-      av = view.id.isEmpty ? "": "#${view.id}";
+      if (view != null //parent might not be assigned yet
+      && view.parent != null //parent might not be assigned yet
+      && _owner.parent != null //parent might not be assigned yet
+      && !identical(view.parent, _owner.parent)) throw new UIError("Anchor can be parent or sibling, not $view");
+      if (identical(view, _owner)) throw new UIError("Anchor can't be itself, $view.");
+      av = view.id.isEmpty ? "" : "#${view.id}";
     }
     setProperty("anchor", av);
     _anchorView = view;

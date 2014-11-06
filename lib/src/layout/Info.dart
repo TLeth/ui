@@ -57,16 +57,16 @@ class AmountInfo {
       type = AmountType.IGNORE;
     } else if (profile.startsWith("flex")) {
       type = AmountType.FLEX;
-      value = profile.length > 4 ? int.parse(profile.substring(4).trim()): 1;
+      value = profile.length > 4 ? int.parse(profile.substring(4).trim()) : 1;
       if (value < 1) value = 1;
     } else if (profile.endsWith("%")) {
       type = AmountType.RATIO;
-      value= double.parse(profile.substring(0, profile.length - 1).trim()) / 100;
+      value = double.parse(profile.substring(0, profile.length - 1).trim()) / 100;
     } else {
       type = AmountType.FIXED;
       value = CssUtil.intOf(profile, reportError: true); //report error if no number at all
-        //since it is common to end the number with px (because of CSS),
-        //we retrieve only the number (and ignore the text following it).
+      //since it is common to end the number with px (because of CSS),
+      //we retrieve only the number (and ignore the text following it).
     }
   }
   String toString() {
@@ -80,7 +80,10 @@ class AmountInfo {
  * Format: `#n1 [#n2 [#n3 #n4]]`
  */
 class SideInfo {
-  int top, bottom, left, right;
+  int top;
+  int bottom;
+  int left;
+  int right;
 
   SideInfo(String profile, [int defaultValue, SideInfo defaultInfo]) {
     if (profile != null && !profile.isEmpty) {

@@ -47,27 +47,24 @@ class _Broadcaster extends Broadcaster {
   final Map<String, List<ViewEventListener>> _listeners;
   BroadcastEvents _on;
 
-  _Broadcaster(): _listeners = new HashMap() {
+  _Broadcaster() : _listeners = new HashMap() {
     _on = new BroadcastEvents._(this);
   }
 
   BroadcastEvents get on => _on;
 
   void addEventListener(String type, ViewEventListener listener) {
-    if (listener == null)
-      throw new ArgumentError("listener");
+    if (listener == null) throw new ArgumentError("listener");
 
     _listeners.putIfAbsent(type, () => []).add(listener);
   }
   void removeEventListener(String type, ViewEventListener listener) {
     final ls = _listeners[type];
-    if (ls != null)
-      ls.remove(listener);
+    if (ls != null) ls.remove(listener);
   }
 
   bool sendEvent(ViewEvent event, {String type}) {
-    if (type == null)
-      type = event.type;
+    if (type == null) type = event.type;
 
     List<ViewEventListener> ls;
     bool dispatched = false;
@@ -77,21 +74,20 @@ class _Broadcaster extends Broadcaster {
       for (final ViewEventListener listener in new List.from(ls)) {
         dispatched = true;
         listener(event);
-        if (event.isPropagationStopped)
-          return true; //done
+        if (event.isPropagationStopped) return true; //done
       }
     }
 
     //broadcast to all root views
-    for (final v in new List<View>.from(rootViews))
-      if (v.sendEvent(event, type: type))
-        dispatched = true;
+    for (final v in new List<View>.from(rootViews)) if (v.sendEvent(event, type: type)) dispatched = true;
     return dispatched;
   }
 
   void postEvent(ViewEvent event, {String type}) {
-    Timer.run(() {sendEvent(event, type: type);});
-      //note: the order of messages is preserved across all views (and message queues)
-      //CONSIDER if it is better to have a queue shared by views/message queues/broadcaster
+    Timer.run(() {
+      sendEvent(event, type: type);
+    });
+    //note: the order of messages is preserved across all views (and message queues)
+    //CONSIDER if it is better to have a queue shared by views/message queues/broadcaster
   }
 }

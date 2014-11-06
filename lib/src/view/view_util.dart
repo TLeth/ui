@@ -72,15 +72,18 @@ class UIError extends Error {
 class Declaration {
   final Map<String, String> _props;
 
-  Declaration(): _props = new HashMap();
+  Declaration() : _props = new HashMap();
 
   /** The text representation of the declaration block.
    * Setting this attribute will reset all properties.
    */
   String get text {
     final StringBuffer sb = new StringBuffer();
-    for (final String key in _props.keys)
-      sb..write(key)..write(':')..write(_props[key])..write(';');
+    for (final String key in _props.keys) sb
+        ..write(key)
+        ..write(':')
+        ..write(_props[key])
+        ..write(';');
     return sb.toString();
   }
   /// Sets the text representation of the declaration block.
@@ -89,8 +92,7 @@ class Declaration {
 
     for (String pair in _s(text).split(';')) {
       pair = pair.trim();
-      if (pair.isEmpty)
-        continue;
+      if (pair.isEmpty) continue;
       final int j = pair.indexOf(':');
       if (j > 0) {
         final String key = pair.substring(0, j).trim();
@@ -113,7 +115,7 @@ class Declaration {
    */
   String getPropertyValue(String propertyName) {
     final String value = _props[propertyName];
-    return value != null ? value: "";
+    return value != null ? value : "";
   }
   /** Removes the property of the given name.
    */
@@ -126,10 +128,7 @@ class Declaration {
    * Notice: the value will be trimmed before saving.
    */
   void setProperty(String propertyName, String value) {
-    if (value == null || value.isEmpty)
-      removeProperty(propertyName);
-    else
-      _props[propertyName] = value.trim();
+    if (value == null || value.isEmpty) removeProperty(propertyName); else _props[propertyName] = value.trim();
   }
 }
 
@@ -172,8 +171,7 @@ class ViewUtil {
   static View getView(Node node) {
     var view;
     do {
-      if ((view = _views[node]) != null)
-        return view;
+      if ((view = _views[node]) != null) return view;
     } while ((node = node.parent) != null && node is! Document);
   }
   static final Map<Element, View> _views = new HashMap();
@@ -189,8 +187,7 @@ class ViewUtil {
   /** Returns the root view of the given view.
    */
   static View getRoot(View view) {
-    for (View w; (w = view.parent) != null; view = w)
-      ;
+    for (View w; (w = view.parent) != null; view = w);
     return view;
   }
   /** Returns the rectangle enclosing all views in the given list.
@@ -200,21 +197,21 @@ class ViewUtil {
    * returns false.
    */
   static Rectangle getRect(List<View> children) {
-    int left = 0, top = 0, right = 0, bottom = 0;
+    int left = 0;
+    int bottom = 0;
+    int right = 0;
+    int top = 0;
     for (final View child in children) {
-      if ((child.parent == null || child.parent.shallLayout_(child))
-      && child.profile.anchorView == null) {
+      if ((child.parent == null || child.parent.shallLayout_(child)) && child.profile.anchorView == null) {
         final String pos = child.style.position;
         if (pos != "static" && pos != "fixed") {
           if (child.left < left) left = child.left;
           int val = child.width;
-          if (val != null && (val += child.left) > right)
-            right = val;
+          if (val != null && (val += child.left) > right) right = val;
 
           if (child.top < top) top = child.top;
           val = child.height;
-          if (val != null && (val += child.top) > bottom)
-            bottom = val;
+          if (val != null && (val += child.top) > bottom) bottom = val;
         }
       }
     }
@@ -228,8 +225,7 @@ class ViewUtil {
   static int get appId {
     if (_appId == null) {
       final body = document.body;
-      if (body == null)
-        throw new UIError("document not ready yet");
+      if (body == null) throw new UIError("document not ready yet");
 
       final dataset = body.dataset;
       String sval = dataset[_APP_COUNT];

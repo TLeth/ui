@@ -36,11 +36,8 @@ class RunOnceQueue {
 
   /** schedules a run-once task for execution.
    */
-  void add(String key, void task(), [int timeout=0]) {
-    if (_tasks != null)
-      cancel(key);
-    else
-      _tasks = new HashMap();
+  void add(String key, void task(), [int timeout = 0]) {
+    if (_tasks != null) cancel(key); else _tasks = new HashMap();
 
     _tasks[key] = new Timer(new Duration(milliseconds: timeout), () {
       _tasks.remove(key);
@@ -51,9 +48,8 @@ class RunOnceQueue {
    */
   void cancel(String key) {
     final timer = _tasks.remove(key);
-    if (timer != null)
-      timer.cancel();
-  }  
+    if (timer != null) timer.cancel();
+  }
 }
 
 /**
@@ -91,10 +87,13 @@ class RunOnceViewManager {
    * + [ignoreSubviews] specifies whether to ignore the sub views. In other words,
    * a view will be ignored, if one of its ancestor has been queued for handling too.
    */
-  RunOnceViewManager(void task(View view),
-  {bool ignoreDetached: true, bool ignoreSubviews: true}):
-  _runQue = new RunOnceQueue(), _views = new Set(), _readyChecks = new List(),
-  _task = task, _ignoreDetached = ignoreDetached, _ignoreSubviews = ignoreSubviews {
+  RunOnceViewManager(void task(View view), {bool ignoreDetached: true, bool ignoreSubviews: true})
+      : _runQue = new RunOnceQueue(),
+        _views = new Set(),
+        _readyChecks = new List(),
+        _task = task,
+        _ignoreDetached = ignoreDetached,
+        _ignoreSubviews = ignoreSubviews {
   }
 
   /** Returns if there is no view is queued.
@@ -103,12 +102,9 @@ class RunOnceViewManager {
    * views is in the queue.
    */
   bool isQueueEmpty([View view]) {
-    if (view == null)
-      return _views.isEmpty;
+    if (view == null) return _views.isEmpty;
 
-    for (final v in _views)
-      if (v.isDescendantOf(view))
-        return false;
+    for (final v in _views) if (v.isDescendantOf(view)) return false;
     return true;
   }
   /** Adds the given view to the queue.
@@ -116,7 +112,9 @@ class RunOnceViewManager {
   void queue(View view) {
     //we don't check view.inDocument here since it might be attached later
     _views.add(view);
-    _runQue.add("", () {flush();}, 0);
+    _runQue.add("", () {
+      flush();
+    }, 0);
   }
   /** Removes the given view from the queue, so the action won't take place.
    */
@@ -128,10 +126,9 @@ class RunOnceViewManager {
    *
    * + [force] specifies whether to force the tasks registered with [addReadyCheck]
    */
-  void flush([View view, bool force=false]) {
+  void flush([View view, bool force = false]) {
     if (!_ready(view, force)) {
-      if (view != null)
-        _views.add(view);
+      if (view != null) _views.add(view);
     } else if (view != null) {
       _flushOne(view, force);
     } else {
@@ -160,55 +157,46 @@ class RunOnceViewManager {
       }
 
       if (_ignoreSubviews) {
-        for (View v = view; (v = v.parent) != null;) {
+        for (View v = view; (v = v.parent) != null; ) {
           if (_views.contains(v)) {//view is subview of v
-            toRemove.add(view);  //ignore subview (i.e., view)
+            toRemove.add(view); //ignore subview (i.e., view)
             break;
           }
         }
       }
     }
-    for (final view in toRemove)
-      _views.remove(view);
+    for (final view in toRemove) _views.remove(view);
 
     //1. handle non-achored roots, 2. handle anchored root, 3. handle others
-    final root1 = [], root2 = [], others = [];
-    for (final v in _views)
-      (v.parent != null ? others: v.profile.anchorView == null ? root1: root2).add(v);
+    final root1 = [];
+    //1. handle non-achored roots, 2. handle anchored root, 3. handle others
+    final others = [];
+    //1. handle non-achored roots, 2. handle anchored root, 3. handle others
+    final root2 = [];
+    for (final v in _views) (v.parent != null ? others : v.profile.anchorView == null ? root1 : root2).add(v);
     _views.clear();
 
-    for (final v in root1)
-      handle_(v);
-    for (final v in root2)
-      handle_(v);
-    for (final v in others)
-      handle_(v);
+    for (final v in root1) handle_(v);
+    for (final v in root2) handle_(v);
+    for (final v in others) handle_(v);
   }
   void _flushOne(View view, bool force) {
     final found = _views.remove(view);
     if (!_ignoreDetached || view.inDocument) {
       if (_ignoreSubviews) {
-        if (!force)
-          for (View v = view; (v = v.parent) != null;)
-            if (_views.contains(v)) //view is subview of v
-              return; //no need to do since the parent will handle it (later)
+        if (!force) for (View v = view; (v = v.parent) != null; ) if (_views.contains(v)) //view is subview of v
+        return; //no need to do since the parent will handle it (later)
 
         final List<View> toRemove = [];
-        for (final View v in _views)
-          if (v.isDescendantOf(view))
-            toRemove.add(v);
-        for (final v in toRemove)
-          _views.remove(v);
+        for (final View v in _views) if (v.isDescendantOf(view)) toRemove.add(v);
+        for (final v in toRemove) _views.remove(v);
 
         handle_(view);
       } else {
         List<View> todos = [];
-        if (found)
-          todos.add(view);
+        if (found) todos.add(view);
 
-        for (final v in _views)
-          if (v.isDescendantOf(view))
-            todos.add(v);
+        for (final v in _views) if (v.isDescendantOf(view)) todos.add(v);
 
         for (final v in todos) {
           _views.remove(v);
@@ -226,10 +214,10 @@ class RunOnceViewManager {
   }
   bool _ready(View view, bool force) {
     if (!_readyChecks.isEmpty) {
-      final _Task continueTask = () {flush(view, force);};
-      for (final RunOnceReadyCheck ready in _readyChecks)
-        if (!ready(view, continueTask, force))
-          return false;
+      final _Task continueTask = () {
+        flush(view, force);
+      };
+      for (final RunOnceReadyCheck ready in _readyChecks) if (!ready(view, continueTask, force)) return false;
     }
     return true;
   }
@@ -237,32 +225,33 @@ class RunOnceViewManager {
 
 class _ModelRenderer extends RunOnceViewManager {
   final List<_Task> _contTasks;
-  static final _ViewTask _renderTask = (view) {view.renderModel_();};
+  static final _ViewTask _renderTask = (view) {
+    view.renderModel_();
+  };
 
-  _ModelRenderer(): _contTasks = new List(),
-  super(_renderTask, ignoreSubviews: false) {
+  _ModelRenderer()
+      : _contTasks = new List(),
+        super(_renderTask, ignoreSubviews: false) {
     //For better performance (though optional), we make layoutManager to
     //wait until all pending renderers are done
     layoutManager.addReadyCheck((View view, void continueTask(), bool force) {
-      if (force)
-        flush(view, true);
+      if (force) flush(view, true);
 
       if (isQueueEmpty(view)) //just in case
-        return true;
+      return true;
 
       _contTasks.add(continueTask);
       return false;
     });
   }
-  void flush([View view, bool force=false]) {
+  void flush([View view, bool force = false]) {
     super.flush(view, force);
 
     if (isQueueEmpty()) { //_contTasks runs only after all views are processed
       final List<_Task> tasks = new List.from(_contTasks);
       _contTasks.clear();
 
-      for (final task in tasks)
-        task();
+      for (final task in tasks) task();
     }
   }
 }

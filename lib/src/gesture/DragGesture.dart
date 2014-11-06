@@ -27,9 +27,13 @@ class DragGestureState extends GestureState {
   Point _position;
   int _time;
 
-  DragGestureState._(DragGesture gesture, this.eventTarget, Point position, int time):
-  _gesture = gesture, startPosition = position, _position = position, 
-  startTime = time, _time = time, _vp = new VelocityProvider(position, time);
+  DragGestureState._(DragGesture gesture, this.eventTarget, Point position, int time)
+      : _gesture = gesture,
+        startPosition = position,
+        _position = position,
+        startTime = time,
+        _time = time,
+        _vp = new VelocityProvider(position, time);
 
   @override
   final EventTarget eventTarget;
@@ -41,13 +45,13 @@ class DragGestureState extends GestureState {
 
   /** The timestamp when the gesture starts. */
   final int startTime;
-  
+
   /** The initial touch/cursor position. */
   final Point startPosition;
-  
+
   /** The current touch/cursor position. */
   Point get position => _position;
-  
+
   /** The displacement of the touch/cursor position of this dragging. */
   Point get transition => _position - startPosition;
 
@@ -84,11 +88,7 @@ abstract class DragGesture extends Gesture {
    * as the touch starts.
    * Default: -1 (unit: pixels)
    */
-  factory DragGesture(Element owner, {DragGestureStart start, 
-  DragGestureMove move, DragGestureEnd end})
-  => browser.touch ?
-      new _TouchDragGesture(owner, start: start, move: move, end: end) :
-      new _MouseDragGesture(owner, start: start, move: move, end: end);
+  factory DragGesture(Element owner, {DragGestureStart start, DragGestureMove move, DragGestureEnd end}) => browser.touch ? new _TouchDragGesture(owner, start: start, move: move, end: end) : new _MouseDragGesture(owner, start: start, move: move, end: end);
   //for subclass to call
   DragGesture._init(this.owner, this._start, this._move, this._end) {
     _listen();
@@ -115,49 +115,43 @@ abstract class DragGesture extends Gesture {
   void stop() {
     _state = null;
   }
-  
+
   void _listen();
   void _unlisten();
-  
+
   void _touchStart(Element target, Point position, int time) {
-    if (_disabled)
-      return;
+    if (_disabled) return;
     stop();
 
     _state = new DragGestureState._(this, target, position, time);
-    if (_start != null && identical(_start(_state), false))
-      stop();
+    if (_start != null && identical(_start(_state), false)) stop();
   }
   void _touchMove(Point position, int time) {
     if (_state != null) {
       _state.snapshot(position, time);
-      
-      if (_move != null && identical(_move(_state), false))
-        stop();
+
+      if (_move != null && identical(_move(_state), false)) stop();
     }
   }
   void _touchEnd() {
-    if (_state != null && _end != null)
-      _end(_state);
+    if (_state != null && _end != null) _end(_state);
     stop();
   }
 }
 
 class _TouchDragGesture extends DragGesture {
-  StreamSubscription<Event> _subStart, _subMove, _subEnd;
-  
-  _TouchDragGesture(Element owner, {DragGestureStart start, 
-  DragGestureMove move, DragGestureEnd end}):
-    super._init(owner, start, move, end);
+  StreamSubscription<Event> _subStart;
+  StreamSubscription<Event> _subMove;
+  StreamSubscription<Event> _subEnd;
+
+  _TouchDragGesture(Element owner, {DragGestureStart start, DragGestureMove move, DragGestureEnd end}) : super._init(owner, start, move, end);
 
   void _listen() {
     _subStart = owner.onTouchStart.listen((TouchEvent event) {
-      if (event.touches.length > 1)
-        _touchEnd(); //ignore multiple fingers
+      if (event.touches.length > 1) _touchEnd(); //ignore multiple fingers
       else {
         _touchStart(event.target, event.touches[0].page, event.timeStamp);
-        if (!DomUtil.isInput(event.target))
-          event.preventDefault();
+        if (!DomUtil.isInput(event.target)) event.preventDefault();
       }
     });
     _subMove = owner.onTouchMove.listen((TouchEvent event) {
@@ -184,16 +178,15 @@ class _TouchDragGesture extends DragGesture {
 }
 
 class _MouseDragGesture extends DragGesture {
-  StreamSubscription<Event> _subStart, _subMove, _subEnd;
+  StreamSubscription<Event> _subStart;
+  StreamSubscription<Event> _subMove;
+  StreamSubscription<Event> _subEnd;
   bool _captured = false;
 
-  _MouseDragGesture(Element owner, {DragGestureStart start, 
-  DragGestureMove move, DragGestureEnd end}):
-    super._init(owner, start, move, end);
+  _MouseDragGesture(Element owner, {DragGestureStart start, DragGestureMove move, DragGestureEnd end}) : super._init(owner, start, move, end);
 
   void stop() {
-    if (_captured)
-      _captured = false;
+    if (_captured) _captured = false;
     if (_subMove != null) {
       _subMove.cancel();
       _subMove = null;
@@ -217,8 +210,7 @@ class _MouseDragGesture extends DragGesture {
     _subStart = owner.onMouseDown.listen((MouseEvent event) {
       _touchStart(event.target, event.page, event.timeStamp);
       _capture();
-      if (!DomUtil.isInput(event.target))
-        event.preventDefault();
+      if (!DomUtil.isInput(event.target)) event.preventDefault();
     });
   }
   void _unlisten() {

@@ -11,12 +11,16 @@ typedef void SwipeGestureAction(SwipeGestureState state);
  */
 class SwipeGestureState extends GestureState {
 
-  SwipeGestureState._(this.gesture, DragGestureState ds) :
-  eventTarget = ds.eventTarget, startTime = ds.startTime, time = ds.time,
-  startPosition = ds.startPosition, position = ds.position,
-  transition = ds.transition, velocity = ds.velocity;
+  SwipeGestureState._(this.gesture, DragGestureState ds)
+      : eventTarget = ds.eventTarget,
+        startTime = ds.startTime,
+        time = ds.time,
+        startPosition = ds.startPosition,
+        position = ds.position,
+        transition = ds.transition,
+        velocity = ds.velocity;
 
-  @override  
+  @override
   final EventTarget eventTarget;
   @override
   final int time;
@@ -24,23 +28,23 @@ class SwipeGestureState extends GestureState {
   /** Retrieve the associated [SwipeGesture].
    */
   final SwipeGesture gesture;
-  
+
   /** The timestamp when the swipe starts.
    */
   final int startTime;
-  
+
   /** The touched/cursor position at the start of swipe.
    */
   final Point startPosition;
-  
+
   /** The touched/cursor position at the end of swipe.
    */
   final Point position;
-  
+
   /** The displacement of the touched/cursor position of the swipe.
    */
   final Point transition;
-  
+
   /** The current estimated velocity of movement.
    */
   final Point velocity;
@@ -54,32 +58,27 @@ class SwipeGesture extends Gesture {
   /** Construct a swipe gesture on [owner] with the given callback [action()].
    */
   SwipeGesture(this.owner, SwipeGestureAction action) {
-    _drag = new DragGesture(owner, 
-    end: (DragGestureState state) {
-      if (action != null)
-        action(new SwipeGestureState._(this, state));
+    _drag = new DragGesture(owner, end: (DragGestureState state) {
+      if (action != null) action(new SwipeGestureState._(this, state));
     });
   }
-  
+
   /** The element associated with this swipe gesture (never null).
    */
   final Element owner;
 
   void stop() {
-    if (_drag != null)
-      _drag.stop();
+    if (_drag != null) _drag.stop();
   }
-  
+
   void disable() {
-    if (_drag != null)
-      _drag.disable();
+    if (_drag != null) _drag.disable();
   }
-  
+
   void enable() {
-    if (_drag != null)
-      _drag.enable();
+    if (_drag != null) _drag.enable();
   }
-  
+
   void destroy() {
     if (_drag != null) {
       _drag.destroy();

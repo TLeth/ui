@@ -21,8 +21,7 @@ class DataModel implements StreamTarget<DataEvent> {
    * `on.select.add(listener)`.
    */
   void addEventListener(String type, DataEventListener listener) {
-    if (listener == null)
-      throw new ArgumentError("listener");
+    if (listener == null) throw new ArgumentError("listener");
 
     bool first = false;
     _listeners.putIfAbsent(type, () {
@@ -36,17 +35,15 @@ class DataModel implements StreamTarget<DataEvent> {
    */
   void removeEventListener(String type, DataEventListener listener) {
     final list = _listeners[type];
-    if (list != null)
-      list.remove(listener);
+    if (list != null) list.remove(listener);
   }
   /** Sends an event to this model.
    *
    * Example: `model.sendEvent(new ListDataEvent(model, "select"))</code>.
    */
   bool sendEvent(DataEvent event) {
-    final bool
-      b1 = _sendEvent(event, _listeners[event.type]),
-      b2 = _sendEvent(event, _listeners['all']);
+    final bool b1 = _sendEvent(event, _listeners[event.type]);
+    final bool b2 = _sendEvent(event, _listeners['all']);
     return b1 || b2;
   }
   static bool _sendEvent(DataEvent event, List<DataEventListener> listeners) {
@@ -180,7 +177,7 @@ abstract class SelectionModel<T> {
   /** Returns whether an object is selected.
    */
   bool isSelected(Object obj);
-  
+
   /**
    * Returns true if the selection is currently empty.
    */
@@ -215,9 +212,9 @@ abstract class SelectionModel<T> {
 /**
  * A skeletal implementation of [DataModel], [SelectionModel] and [DisablesModel].
  */
-class AbstractDataModel<T> extends DataModel
-implements SelectionModel<T>, DisablesModel<T> {
-  Set<T> _selection, _disables;
+class AbstractDataModel<T> extends DataModel implements SelectionModel<T>, DisablesModel<T> {
+  Set<T> _selection;
+  Set<T> _disables;
   bool _multiple = false;
   /** Constructor.
    *
@@ -226,9 +223,9 @@ implements SelectionModel<T>, DisablesModel<T> {
    * + [disables]: if not null, it will be used to hold the list of disabled items.
    * Unlike [set disables], it won't make a copy.
    */
-  AbstractDataModel({Set<T> selection, Set<T> disables, bool multiple:false}) {
-    _selection = selection != null ? selection: new Set();
-    _disables = disables != null ? disables: new Set();
+  AbstractDataModel({Set<T> selection, Set<T> disables, bool multiple: false}) {
+    _selection = selection != null ? selection : new Set();
+    _disables = disables != null ? disables : new Set();
     _multiple = multiple;
   }
 
@@ -241,13 +238,12 @@ implements SelectionModel<T>, DisablesModel<T> {
   }
 
   //SelectionModel//
-  T get selectedValue => _selection.isEmpty ? null: _selection.first;
+  T get selectedValue => _selection.isEmpty ? null : _selection.first;
   Set<T> get selection => _selection;
 
   void set selection(Iterable<T> selection) {
     if (!_equals(_selection, selection)) {
-      if (!_multiple && selection.length > 1)
-        throw new ModelError("Only one selection is allowed, $selection");
+      if (!_multiple && selection.length > 1) throw new ModelError("Only one selection is allowed, $selection");
       _selection.clear();
       _selection.addAll(selection);
       _sendSelect();
@@ -255,17 +251,15 @@ implements SelectionModel<T>, DisablesModel<T> {
   }
 
   @override
-  bool isSelected(Object obj)  => _selection.contains(obj);
+  bool isSelected(Object obj) => _selection.contains(obj);
   @override
   bool get isSelectionEmpty => _selection.isEmpty;
 
   @override
   bool addToSelection(T obj) {
-    if (_selection.contains(obj))
-      return false;
+    if (_selection.contains(obj)) return false;
 
-    if (!_multiple)
-      _selection.clear();
+    if (!_multiple) _selection.clear();
     _selection.add(obj);
     _sendSelect();
     return true;
@@ -312,11 +306,10 @@ implements SelectionModel<T>, DisablesModel<T> {
       _sendDisable();
     }
   }
-  bool isDisabled(Object obj)  => _disables.contains(obj);
+  bool isDisabled(Object obj) => _disables.contains(obj);
   bool get isDisablesEmpty => _disables.isEmpty;
   bool addToDisables(T obj) {
-    if (_disables.contains(obj))
-      return false;
+    if (_disables.contains(obj)) return false;
 
     _disables.add(obj);
     _sendDisable();
@@ -342,27 +335,22 @@ implements SelectionModel<T>, DisablesModel<T> {
   void removeAllSelection(Iterable c) {
     final int oldlen = _selection.length;
     _selection.removeAll(c);
-    if (oldlen != _selection.length)
-      _sendSelect();
+    if (oldlen != _selection.length) _sendSelect();
   }
   /**Removes the given collection from the list of disabled object.
    */
   void removeAllDisables(Iterable c) {
     final int oldlen = _disables.length;
     _disables.removeAll(c);
-    if (oldlen != _disables.length)
-      _sendDisable();
+    if (oldlen != _disables.length) _sendDisable();
   }
 
   /** Compares a set with a collection.
    */
   static bool _equals(Set set, Iterable col) {
-    if (set.length != col.length)
-      return false;
+    if (set.length != col.length) return false;
 
-    for (final e in col)
-      if (!set.contains(e))
-        return false;
+    for (final e in col) if (!set.contains(e)) return false;
     return true;
   }
 }
@@ -374,8 +362,7 @@ implements SelectionModel<T>, DisablesModel<T> {
  * See also [Renderer].
  */
 class RenderContext<T> {
-  RenderContext(this.view, this.model, this.data, this.selected, this.disabled,
-    [this.index = -1, this.column, this.columnIndex = -1]);
+  RenderContext(this.view, this.model, this.data, this.selected, this.disabled, [this.index = -1, this.column, this.columnIndex = -1]);
 
   /** The view that renders the model. */
   final View view;
@@ -419,13 +406,11 @@ class RenderContext<T> {
    *
    * + [encode] specifies whether to invoke [XmlUtil.encode].
    */
-  String getDataAsString([bool encode=false]) {
+  String getDataAsString([bool encode = false]) {
     var val = data;
-    if (val is TreeNode)
-      val = (val as TreeNode).data;
-    if (val is Map && (val as Map).containsKey("text"))
-      val = val["text"];
-    return val != null ? encode ? "${XmlUtil.encode(val)}": val.toString(): "";
+    if (val is TreeNode) val = (val as TreeNode).data;
+    if (val is Map && (val as Map).containsKey("text")) val = val["text"];
+    return val != null ? encode ? "${XmlUtil.encode(val)}" : val.toString() : "";
   }
 }
 /** Renders the given data into a string or an element.

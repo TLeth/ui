@@ -34,7 +34,7 @@ abstract class TreeNode<T> {
   /**
    * Returns the child ([TreeNode]) at the given index.
    */
-  TreeNode<T> operator[](int index);
+  TreeNode<T> operator [](int index);
   /**
    * Returns the number of children [TreeNode]s this node contains.
    */
@@ -96,16 +96,16 @@ class DefaultTreeNode<T> extends TreeNode<T> {
   TreeNode<T> _parent;
   List<TreeNode<T>> _children;
   T _data;
-  bool _leaf, _loaded = false;
+  bool _leaf;
+  bool _loaded = false;
 
   DefaultTreeNode([T data, Iterable nodes, bool leaf]) {
     _data = data;
     _leaf = leaf;
-    if (nodes != null)
-      addAll(nodes);
+    if (nodes != null) addAll(nodes);
   }
   static int _$uuid = 0;
-  DefaultTreeModel<T> get model => _parent != null ? _parent.model: _model;
+  DefaultTreeModel<T> get model => _parent != null ? _parent.model : _model;
   void set model(DefaultTreeModel<T> model) {
     _model = model;
   }
@@ -116,22 +116,20 @@ class DefaultTreeNode<T> extends TreeNode<T> {
       _data = data;
 
       final DefaultTreeModel<T> m = model;
-      if (m != null)
-        m.sendEvent(new TreeDataEvent(model, 'change', this));
+      if (m != null) m.sendEvent(new TreeDataEvent(model, 'change', this));
     }
   }
 
-  bool get isLeaf => _leaf != null ? _leaf: _children == null || _children.isEmpty;
+  bool get isLeaf => _leaf != null ? _leaf : _children == null || _children.isEmpty;
 
-  TreeNode<T> operator[](int childIndex) {
+  TreeNode<T> operator [](int childIndex) {
     _init();
-    if (_children == null)
-      throw new RangeError(childIndex);
+    if (_children == null) throw new RangeError(childIndex);
     return _children[childIndex];
   }
   int get length {
-     _init();
-    return _children != null ? _children.length: 0;
+    _init();
+    return _children != null ? _children.length : 0;
   }
   TreeNode<T> get parent => _parent;
 
@@ -143,10 +141,8 @@ class DefaultTreeNode<T> extends TreeNode<T> {
    * If the list is sorted, you can override this method to utilize it.
    */
   int get index {
-    if (_parent == null)
-      return 0;
-    if (_parent is! DefaultTreeNode)
-      throw new ModelError("DefaultTreeNode expected, not $_parent");
+    if (_parent == null) return 0;
+    if (_parent is! DefaultTreeNode) throw new ModelError("DefaultTreeNode expected, not $_parent");
 
     final DefaultTreeNode p = _parent;
     return p._children.indexOf(this);
@@ -154,15 +150,12 @@ class DefaultTreeNode<T> extends TreeNode<T> {
 
   void add(TreeNode<T> child, [int index]) {
     _init();
-    if (_leaf != null && _leaf)
-      throw new UnsupportedError("Leaf node doesn't allow child");
+    if (_leaf != null && _leaf) throw new UnsupportedError("Leaf node doesn't allow child");
 
-    if (child.parent != null)
-      child.parent.remove(child.index);
+    if (child.parent != null) child.parent.remove(child.index);
 
-    if (_children == null)
-      _children = new List();
-    _children.insert(index != null ? index: _children.length, child);
+    if (_children == null) _children = new List();
+    _children.insert(index != null ? index : _children.length, child);
 
     if (child is DefaultTreeNode) {
       final DefaultTreeNode c = child;
@@ -170,24 +163,20 @@ class DefaultTreeNode<T> extends TreeNode<T> {
     }
 
     final DefaultTreeModel<T> m = model;
-    if (m != null)
-      m.sendEvent(new TreeDataEvent(model, 'add', child));
+    if (m != null) m.sendEvent(new TreeDataEvent(model, 'add', child));
   }
   void addAll(Iterable nodes, [int index]) {
     _init();
-    if (index == null)
-      index = _children != null ? _children.length: 0;
+    if (index == null) index = _children != null ? _children.length : 0;
 
-    for (final node in nodes)
-      add(node is TreeNode ? node: new DefaultTreeNode(node), index++);
+    for (final node in nodes) add(node is TreeNode ? node : new DefaultTreeNode(node), index++);
   }
   TreeNode<T> remove(int index) {
     _init();
     final DefaultTreeModel<T> m = model;
     TreeNode<T> child = this[index];
 
-    if (m != null)
-      _cleanSelOpen(m, child);
+    if (m != null) _cleanSelOpen(m, child);
 
     _children.removeAt(index);
 
@@ -196,8 +185,7 @@ class DefaultTreeNode<T> extends TreeNode<T> {
       c._parent = null;
     }
 
-    if (m != null)
-      m.sendEvent(new TreeDataEvent(model, 'remove', child));
+    if (m != null) m.sendEvent(new TreeDataEvent(model, 'remove', child));
     return child;
   }
   static void _cleanSelOpen(DefaultTreeModel m, TreeNode child) {
@@ -206,8 +194,11 @@ class DefaultTreeNode<T> extends TreeNode<T> {
     m._opens.remove(child);
 
     if (!child.isLeaf) {
-      for (int i = 0, len = child.length; i < len; ++i)
-        _cleanSelOpen(m, child[i]);
+      {
+        int i = 0;
+        int len = child.length;
+        for ( ; i < len; ++i) _cleanSelOpen(m, child[i]);
+      }
     }
   }
   void clear() {
@@ -215,8 +206,7 @@ class DefaultTreeNode<T> extends TreeNode<T> {
     if (_children != null && !_children.isEmpty) {
       final DefaultTreeModel<T> m = model;
       if (m != null) {
-        for (final TreeNode<T> child in _children)
-          _cleanSelOpen(m, child);
+        for (final TreeNode<T> child in _children) _cleanSelOpen(m, child);
       }
 
       _children = null;
@@ -226,7 +216,7 @@ class DefaultTreeNode<T> extends TreeNode<T> {
       }
     }
   }
- 
+
   void _init() {
     if (!_loaded) {
       _loaded = true;

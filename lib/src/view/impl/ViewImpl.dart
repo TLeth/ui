@@ -8,88 +8,80 @@ part of rikulo_view_impl;
 class ViewImpl {
   ///Clears the width set by layout handler, if any
   static void clearWidthByLayout(View view) {
-    if (!ViewImpl.isWidthByApp(view))
-      view.width = null;
+    if (!ViewImpl.isWidthByApp(view)) view.width = null;
   }
   ///Clears the width set by layout handler, if any
   static void clearHeightByLayout(View view) {
-    if (!ViewImpl.isHeightByApp(view))
-      view.height = null;
+    if (!ViewImpl.isHeightByApp(view)) view.height = null;
   }
   /** Called to indicate the view's left has been changed.
    * It is called automatically if [View]'s left has been set.
    */
   static void leftUpdated(View view) {
     final nm = _sbaAttr(0);
-    if (layoutManager.inLayout)
-      view.dataset[nm] = _sbaVal(view, 0);
-    else
-      view.dataset.remove(nm);
+    if (layoutManager.inLayout) view.dataset[nm] = _sbaVal(view, 0); else view.dataset.remove(nm);
   }
   /** Called to indicate the view's top has been changed.
    * It is called automatically if [View]'s top has been set.
    */
   static void topUpdated(View view) {
     final nm = _sbaAttr(1);
-    if (layoutManager.inLayout)
-      view.dataset[nm] = _sbaVal(view, 1);
-    else
-      view.dataset.remove(nm);
+    if (layoutManager.inLayout) view.dataset[nm] = _sbaVal(view, 1); else view.dataset.remove(nm);
   }
   /** Called to indicate the view's width has been changed.
    * It is called automatically if [View]'s width has been set.
    */
   static void widthUpdated(View view) {
     final nm = _sbaAttr(2);
-    if (layoutManager.inLayout)
-      view.dataset[nm] = _sbaVal(view, 2);
-    else
-      view.dataset.remove(nm);
+    if (layoutManager.inLayout) view.dataset[nm] = _sbaVal(view, 2); else view.dataset.remove(nm);
   }
   /** Called to indicate the view's height has been changed.
    * It is called automatically if [View]'s height has been set.
    */
   static void heightUpdated(View view) {
     final nm = _sbaAttr(3);
-    if (layoutManager.inLayout)
-      view.dataset[nm] = _sbaVal(view, 3);
-    else
-      view.dataset.remove(nm);
+    if (layoutManager.inLayout) view.dataset[nm] = _sbaVal(view, 3); else view.dataset.remove(nm);
   }
   /** Returns true if [View]'s left is set by the application.
    */
   static bool isLeftByApp(View view) {
-    final v1 = _sbaVal(view, 0), v2 = view.dataset[_sbaAttr(0)];
+    final v1 = _sbaVal(view, 0);
+    final v2 = view.dataset[_sbaAttr(0)];
     return v1 != v2 && (v1 != 0 || v2 != null);
-      //Note: left is default to 0, while dataset is default null => not app
+    //Note: left is default to 0, while dataset is default null => not app
   }
   /** Returns true if [View]'s top is set by the application.
    */
   static bool isTopByApp(View view) {
-    final v1 = _sbaVal(view, 1), v2 = view.dataset[_sbaAttr(1)];
+    final v1 = _sbaVal(view, 1);
+    final v2 = view.dataset[_sbaAttr(1)];
     return v1 != v2 && (v1 != 0 || v2 != null);
-      //Note: left is default to 0, while dataset is default null => not app
+    //Note: left is default to 0, while dataset is default null => not app
   }
   /** Returns true if [View]'s width is set by the application.
    */
   static bool isWidthByApp(View view) {
     final val = _sbaVal(view, 2);
     return val != null && val != view.dataset[_sbaAttr(2)];
-      //Note: if null is assigned, it is considered as set-internally
+    //Note: if null is assigned, it is considered as set-internally
   }
   /** Returns true if [View]'s height is set by the application.
    */
   static bool isHeightByApp(View view) {
     final val = _sbaVal(view, 3);
     return val != null && val != view.dataset[_sbaAttr(3)];
-      //Note: if null is assigned, it is considered as set-internally
+    //Note: if null is assigned, it is considered as set-internally
   }
   static int _sbaVal(View view, int type) {
     switch (type) {
-      case 0: return view.left;
-      case 1: return view.top;
-      case 2: return view.width;
-      case 3: return view.height;
+      case 0:
+        return view.left;
+      case 1:
+        return view.top;
+      case 2:
+        return view.width;
+      case 3:
+        return view.height;
     }
   }
   static String _sbaAttr(int type) => 'rk.layout.$type';
@@ -107,11 +99,10 @@ class DialogInfo {
 
   void updateSize() {
     final p = cave.parent;
-    final size = p == document.body || p == null ?
-      DomUtil.windowSize: DomUtil.clientSize(p);
+    final size = p == document.body || p == null ? DomUtil.windowSize : DomUtil.clientSize(p);
     mask.style
-      ..width = CssUtil.px(size.width)
-      ..height = CssUtil.px(size.height);
+        ..width = CssUtil.px(size.width)
+        ..height = CssUtil.px(size.height);
   }
 
 }
@@ -139,8 +130,7 @@ class ViewConfig {
 
   ViewConfig() {
     final int appid = ViewUtil.appId;
-    if (appid > 0)
-      uuidPrefix = "${StringUtil.encodeId(appid, 'v')}_";
+    if (appid > 0) uuidPrefix = "${StringUtil.encodeId(appid, 'v')}_";
   }
 }
 final ViewConfig viewConfig = new ViewConfig();

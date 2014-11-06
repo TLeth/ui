@@ -10,10 +10,8 @@ part of rikulo_view;
  */
 class TextBox extends View implements Input<String> {
   TextBox([String value, String type]) {
-    if (value != null && !value.isEmpty)
-      this.value = value;
-    if (type != null && !type.isEmpty)
-      this.type = type;
+    if (value != null && !value.isEmpty) this.value = value;
+    if (type != null && !type.isEmpty) this.type = type;
   }
 
   /** Returns the INPUT element in this view.
@@ -49,7 +47,7 @@ class TextBox extends View implements Input<String> {
    * + email - 
    */
   void set type(String type) {
-    inputNode.type = type != null ? type: "text";
+    inputNode.type = type != null ? type : "text";
   }
 
   /** Returns the value of this text box.
@@ -83,8 +81,7 @@ class TextBox extends View implements Input<String> {
    */
   void set autofocus(bool autofocus) {
     final inp = inputNode..autofocus = _b(autofocus);
-    if (autofocus && inDocument)
-      inp.focus();
+    if (autofocus && inDocument) inp.focus();
   }
 
   /** Returns whether to predict the value based on ealier typed value.
@@ -98,7 +95,7 @@ class TextBox extends View implements Input<String> {
   /** Sets whether to predict the value based on ealier typed value.
    */
   void set autocomplete(bool autocomplete) {
-    inputNode.autocomplete = _b(autocomplete) ? "on": "off";
+    inputNode.autocomplete = _b(autocomplete) ? "on" : "off";
   }
 
   /** Returns a short hint that describes this text box.

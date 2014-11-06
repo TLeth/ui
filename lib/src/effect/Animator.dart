@@ -42,7 +42,7 @@ class _Animator implements Animator {
   List<AnimatorTask> _tmpRemoved;
   Function _callback;
 
-  _Animator(): _tasks = new List() {
+  _Animator() : _tasks = new List() {
     _callback = (num now) {
       if (!_tasks.isEmpty) {
         final int inow = _now();
@@ -61,8 +61,7 @@ class _Animator implements Animator {
           _afterCallback();
         }
 
-        if (!_tasks.isEmpty)
-          window.requestAnimationFrame(_callback);
+        if (!_tasks.isEmpty) window.requestAnimationFrame(_callback);
       }
     };
   }
@@ -73,21 +72,18 @@ class _Animator implements Animator {
     final List<AnimatorTask> removed = _tmpRemoved;
     _tmpRemoved = null;
 
-    for (final task in removed)
-      remove(task);
+    for (final task in removed) remove(task);
   }
   bool _isRemoved(int index) {
     if (!_tmpRemoved.isEmpty) {
       final AnimatorTask task = _tasks[index];
       int cnt = 0;
       for (final t in _tmpRemoved) {
-        if (t == task)
-          ++cnt;
+        if (t == task) ++cnt;
       }
       if (cnt > 0) { //task shall be deleted
         for (int j = 0; j < index; ++j) {
-          if (_tasks[j] == task && --cnt == 0)
-            return false;
+          if (_tasks[j] == task && --cnt == 0) return false;
         }
         return true;
       }

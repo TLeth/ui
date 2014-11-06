@@ -17,16 +17,18 @@ part of rikulo_view;
  *     new Switch().classes.add("v-small");
  */
 class Switch extends View implements Input<bool> {
-  String _onLabel, _offLabel;
+  String _onLabel;
+  String _offLabel;
   DragGesture _dg;
-  bool _value = false, _disabled = false;
+  bool _value = false;
+  bool _disabled = false;
 
   /** Instantaites a switch.
    */
   Switch([bool value, String onLabel, String offLabel]) {
     _value = _b(value);
-    _onLabel = onLabel != null ? onLabel: "ON";
-    _offLabel = offLabel != null ? offLabel: "OFF";
+    _onLabel = onLabel != null ? onLabel : "ON";
+    _offLabel = offLabel != null ? offLabel : "OFF";
   }
 
   /** Returns whether it is value (i.e., the switch is ON).
@@ -50,10 +52,7 @@ class Switch extends View implements Input<bool> {
   void set disabled(bool disabled) {
     _disabled = disabled;
 
-    if (disabled)
-      classes.add("v-disabled");
-    else
-      classes.remove("v-disabled");
+    if (disabled) classes.add("v-disabled"); else classes.remove("v-disabled");
   }
 
   /** Returns the label to indicate the switch is ON.
@@ -68,7 +67,7 @@ class Switch extends View implements Input<bool> {
   int get _marginDiff => 1 - (offsetHeight >> 1); //-(radius - 1) (border)
   /** X offset for the OFF label. */
   int get _x_off => offsetWidth - offsetHeight; //-(width - 2 * radius)
-  void _setValue(bool value, [bool bAnimate=false, bool bSendEvent=false]) {
+  void _setValue(bool value, [bool bAnimate = false, bool bSendEvent = false]) {
     final bool bChanged = _value != (value = _b(value));
     _value = value;
     if (inDocument) {
@@ -84,36 +83,34 @@ class Switch extends View implements Input<bool> {
         _updateBg(nofs);
       }
     }
-    if (bSendEvent && bChanged)
-      sendEvent(new ChangeEvent(_value));
+    if (bSendEvent && bChanged) sendEvent(new ChangeEvent(_value));
   }
   void _updateBg(int delta) {
     _sdNode.style.transform = CssUtil.translate3d(delta, 0);
     _bgNode.style.marginLeft = CssUtil.px(delta + _marginDiff);
   }
   int _translate3dXValue(String str) => str == null ? 0 : CssUtil.intOf(str.substring(12));
-  
+
   int _snapDrag(num value) => max(min(value, 0), -_x_off).toInt();
-  
+
   void mount_() {
     super.mount_();
 
     _setValue(_value);
     bool moved = false;
     int mgoff;
-    _dg = new DragGesture(_sdNode,
-      start: (state) {
-        mgoff = CssUtil.intOf(_bgNode.style.marginLeft) - _marginDiff;
-        moved = false;
-        
-      }, move: (state) {
-        _updateBg(_snapDrag(state.transition.x + mgoff));
-        moved = true;
-        
-      }, end: (state) {
-        _setValue(moved ? (state.transition.x + mgoff) > (-(_x_off>>1)) : !_value, true, true);
-        
-      });
+    _dg = new DragGesture(_sdNode, start: (state) {
+      mgoff = CssUtil.intOf(_bgNode.style.marginLeft) - _marginDiff;
+      moved = false;
+
+    }, move: (state) {
+      _updateBg(_snapDrag(state.transition.x + mgoff));
+      moved = true;
+
+    }, end: (state) {
+      _setValue(moved ? (state.transition.x + mgoff) > (-(_x_off >> 1)) : !_value, true, true);
+
+    });
   }
   void unmount_() {
     _dg.destroy();
@@ -128,14 +125,16 @@ class Switch extends View implements Input<bool> {
   }
 
   @override
-  Element render_()
-  => new Element.html(
-      (new StringBuffer()..write('<div><div class="v-bg"><div class="v-bgi" id="')
-        ..write(uuid)..write('-bg"></div></div><div class="v-slide" id="')
-        ..write(uuid)..write('-sd"><div class="v-text-on v-button">')
-        ..write(onLabel)..write('</div><div class="v-text-off v-button">')
-        ..write(offLabel)..write('</div><div class="v-knot"></div></div></div>'))
-        .toString());
+  Element render_() => new Element.html((new StringBuffer()
+      ..write('<div><div class="v-bg"><div class="v-bgi" id="')
+      ..write(uuid)
+      ..write('-bg"></div></div><div class="v-slide" id="')
+      ..write(uuid)
+      ..write('-sd"><div class="v-text-on v-button">')
+      ..write(onLabel)
+      ..write('</div><div class="v-text-off v-button">')
+      ..write(offLabel)
+      ..write('</div><div class="v-knot"></div></div></div>')).toString());
 
   /** Returns false to indicate this view doesn't allow any child views.
    */

@@ -14,9 +14,8 @@ class CheckBox extends TextView implements Input<bool> {
   /** Instantiates with a plain text.
    * The text will be encoded to make sure it is valid HTML text.
    */
-  CheckBox([String text, bool value]): super(text) {
-    if (_b(value))
-      this.value = true;
+  CheckBox([String text, bool value]) : super(text) {
+    if (_b(value)) this.value = true;
   }
   /** Instantiates with a HTML fragment.
    *
@@ -24,9 +23,8 @@ class CheckBox extends TextView implements Input<bool> {
    * Notice it must be a valid HTML fragment. Otherwise, the result is
    * unpredictable.
    */
-  CheckBox.fromHtml(String html, [bool value]): super.fromHtml(html) {
-    if (_b(value))
-      this.value = true;
+  CheckBox.fromHtml(String html, [bool value]) : super.fromHtml(html) {
+    if (_b(value)) this.value = true;
   }
 
   /** Returns the name of the input element of this view.
@@ -69,8 +67,7 @@ class CheckBox extends TextView implements Input<bool> {
    */
   void set autofocus(bool autofocus) {
     final inp = inputNode..autofocus = _b(autofocus);
-    if (autofocus && inDocument)
-      inp.focus();
+    if (autofocus && inDocument) inp.focus();
   }
   /** Returns the INPUT element in this view.
    */
@@ -81,9 +78,7 @@ class CheckBox extends TextView implements Input<bool> {
     node.query("label").innerHtml = "$encodedText${_s(html)}";
   }
   @override
-  Element render_()
-  => new Element.html(
-  '<div><input type="$type" id="$uuid-inp"/><label for="$uuid-inp" class="${viewConfig.classPrefix}inner"></label></div>');
+  Element render_() => new Element.html('<div><input type="$type" id="$uuid-inp"/><label for="$uuid-inp" class="${viewConfig.classPrefix}inner"></label></div>');
 
   /** Returns the type of the INPUT element.
    */
@@ -103,14 +98,14 @@ class RadioButton extends CheckBox {
   /** Instantiates with a plain text.
    * The text will be encoded to make sure it is valid HTML text.
    */
-  RadioButton([String text, bool value]): super(text, value);
+  RadioButton([String text, bool value]) : super(text, value);
   /** Instantiates with a HTML fragment.
    *
    * + [html] specifies a HTML fragment.
    * Notice it must be a valid HTML fragment. Otherwise, the result is
    * unpredictable.
    */
-  RadioButton.fromHtml(String html, [bool value]): super.fromHtml(html, value);
+  RadioButton.fromHtml(String html, [bool value]) : super.fromHtml(html, value);
 
   @override
   String get type => "radio";

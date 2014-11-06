@@ -13,7 +13,7 @@ class ListDataEvent<T> extends DataEvent {
    * + [type]: `change`, `add` or `remove`.
    */
   ListDataEvent(ListModel<T> model, String type, [this.start, this.end])
-  : super(model, type);
+      : super(model, type);
 
   /** The starting index of the change range (nonnegative).
    * It is null, if not applicable.
@@ -47,14 +47,13 @@ class Foo extends ListModel {
   String operator [](int index) => "";
   /** Returns the length of the list.
    */
-  int get length=>0;
+  int get length => 0;
 }
 /**
  * A skeletal implementation of [ListModel].
  * It handles the data events ([ListDataEvent]) and the selection ([SelectionModel]).
  */
-abstract class AbstractListModel<T> extends AbstractDataModel<T>
-implements ListModel<T> {
+abstract class AbstractListModel<T> extends AbstractDataModel<T> implements ListModel<T> {
   /** Constructor.
    *
    * + [selection]: if not null, it will be used to hold the selection.
@@ -62,8 +61,7 @@ implements ListModel<T> {
    * + [disables]: if not null, it will be used to hold the list of disabled items.
    * Unlike [set disables], it won't make a copy.
    */
-  AbstractListModel({Set<T> selection, Set<T> disables, bool multiple:false}):
-  super(selection: selection, disables: disables, multiple: multiple);
+  AbstractListModel({Set<T> selection, Set<T> disables, bool multiple: false}) : super(selection: selection, disables: disables, multiple: multiple);
 }
 
 /**
@@ -86,10 +84,9 @@ class DefaultListModel<T> extends AbstractListModel<T> {
    * + [disables]: if not null, it will be used to hold the list of disabled items.
    * Unlike [set disables], it won't make a copy.
    */
-  DefaultListModel(List<T> data,
-  {Set<T> selection, Set<T> disables, bool multiple: false}):
-  super(selection: selection, disables: disables, multiple: multiple),
-  this.data = data;
+  DefaultListModel(List<T> data, {Set<T> selection, Set<T> disables, bool multiple: false})
+      : super(selection: selection, disables: disables, multiple: multiple),
+        this.data = data;
 
   @override
   /** Returns the object of the given index.
@@ -114,7 +111,7 @@ class DefaultListModel<T> extends AbstractListModel<T> {
 
   /** Assigns a value to the given index.
    */
-  void operator[]=(int index, T value) {
+  void operator []=(int index, T value) {
     final T old = data[index];
     data[index] = value;
 
@@ -153,8 +150,11 @@ class DefaultListModel<T> extends AbstractListModel<T> {
   /** Removes a range of values starting at the given index.
    */
   void removeRange(int start, int end) {
-    for (int i = start, len = end - start; --len >= 0;)
-      _selection.remove(data[i++]); //no need to fire select
+    {
+      int i = start;
+      int len = end - start;
+      for ( ; --len >= 0; ) _selection.remove(data[i++]);
+    } //no need to fire select
     data.removeRange(start, end);
     sendEvent(new ListDataEvent(this, 'remove', start, end));
   }

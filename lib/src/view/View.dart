@@ -9,7 +9,7 @@ typedef void ViewEffect(View view);
 
 /** Called after views are added to the document, and
  * all [View.mount_] methods are called.
- */ 
+ */
 typedef void AfterMount(View view);
 
 /**
@@ -54,20 +54,25 @@ class View implements StreamTarget<ViewEvent> {
   String _uuid;
 
   View _parent;
-  View _nextSibling, _prevSibling;
+  View _nextSibling;
+  View _prevSibling;
   //Virtual ID space. Used only if this is root but not IDSpace
   IDSpace _virtIS;
 
   _ChildInfo _childInfo;
   List<View> _children;
   _EventListenerInfo _evlInfo;
-  Map<String, dynamic> _dataset, _mntset;
+  Map<String, dynamic> _dataset;
+  Map<String, dynamic> _mntset;
   Map<String, Annotation> _annos;
 
   CssStyleDeclaration _style;
   Element _node;
 
-  int _left = 0, _top = 0, _width, _height;
+  int _left = 0;
+  int _top = 0;
+  int _width;
+  int _height;
   ProfileDeclaration _profile;
   LayoutDeclaration _layout;
 
@@ -116,11 +121,10 @@ class View implements StreamTarget<ViewEvent> {
    * and [queryAll] uses it as the *tag* name for matching the given selector.
    */
   String get className => "View";
-    //TODO: check if dart changes its implement and replace with mirrors if necessary
+  //TODO: check if dart changes its implement and replace with mirrors if necessary
 
   _EventListenerInfo _initEventListenerInfo() {
-    if (_evlInfo == null)
-      _evlInfo = new _EventListenerInfo(this);
+    if (_evlInfo == null) _evlInfo = new _EventListenerInfo(this);
     return _evlInfo;
   }
 
@@ -129,8 +133,7 @@ class View implements StreamTarget<ViewEvent> {
    * It is used mostly by [render_] to identify the child elements, if any.
    */
   String get uuid {
-    if (_uuid == null)
-      _uuid = StringUtil.encodeId(_uuidNext++, viewConfig.uuidPrefix);
+    if (_uuid == null) _uuid = StringUtil.encodeId(_uuidNext++, viewConfig.uuidPrefix);
     return _uuid;
   }
   static int _uuidNext = 0;
@@ -143,8 +146,7 @@ class View implements StreamTarget<ViewEvent> {
   void set id(String id) {
     if (id == null) id = "";
     if (node.id != id) {
-      if (id.length > 0)
-        _ViewImpl.checkIDSpaces(this, id);
+      if (id.length > 0) _ViewImpl.checkIDSpaces(this, id);
       _ViewImpl.removeFromIDSpace(this);
       node.id = id;
       _ViewImpl.addToIDSpace(this);
@@ -158,11 +160,12 @@ class View implements StreamTarget<ViewEvent> {
    * It returns null if selector is null or empty.
    */
   View query(String selector) {
-    if (selector == null)
-      return null;
+    if (selector == null) return null;
     switch (selector) {
-      case "": return null;
-      case "parent": return parent;
+      case "":
+        return null;
+      case "parent":
+        return parent;
       case "spaceOwner":
         var so = spaceOwner;
         return so is View ? so as View : null;
@@ -195,8 +198,7 @@ class View implements StreamTarget<ViewEvent> {
    */
   bool isDescendantOf(View parent) {
     for (View w = this; w != null; w = w.parent) {
-      if (identical(w, parent))
-        return true;
+      if (identical(w, parent)) return true;
     }
     return false;
   }
@@ -206,10 +208,10 @@ class View implements StreamTarget<ViewEvent> {
   View get parent => _parent;
   /** Returns the first child, or null if this view has no child at all.
    */
-  View get firstChild => _childInfo != null ? _childInfo.firstChild: null;
+  View get firstChild => _childInfo != null ? _childInfo.firstChild : null;
   /** Returns the last child, or null if this view has no child at all.
    */
-  View get lastChild => _childInfo != null ? _childInfo.lastChild: null;
+  View get lastChild => _childInfo != null ? _childInfo.lastChild : null;
   /** Returns the next sibling, or null if this view is the last sibling.
    */
   View get nextSibling => _nextSibling;
@@ -219,8 +221,7 @@ class View implements StreamTarget<ViewEvent> {
   /** Returns a list of child views.
    */
   List<View> get children {
-    if (_children == null)
-      _children = new _SubviewList(this);
+    if (_children == null) _children = new _SubviewList(this);
     return _children;
   }
   /**
@@ -232,7 +233,7 @@ class View implements StreamTarget<ViewEvent> {
   }
   /** Returns the number of child views.
    */
-  int get childCount => _childInfo != null ? _childInfo.nChild: 0;
+  int get childCount => _childInfo != null ? _childInfo.nChild : 0;
 
   /** Callback AFTER a child has been added.
    *
@@ -299,41 +300,31 @@ class View implements StreamTarget<ViewEvent> {
    * To remove a child from its parent, you can invoke [remove], such as `child.remove()`.
    */
   void addChild(View child, [View beforeChild]) {
-    if (isDescendantOf(child))
-      throw new UIError("$child is an ancestor of $this");
-    if (!isViewGroup)
-      throw new UIError("No child allowed for $this");
+    if (isDescendantOf(child)) throw new UIError("$child is an ancestor of $this");
+    if (!isViewGroup) throw new UIError("No child allowed for $this");
 
     if (beforeChild != null) {
-      if (!identical(beforeChild.parent, this))
-        beforeChild = null;
-      else if (identical(child, beforeChild))
-        return; //nothing to change
+      if (!identical(beforeChild.parent, this)) beforeChild = null; else if (identical(child, beforeChild)) return; //nothing to change
     }
 
     final View oldParent = child.parent;
     final bool parentChanged = !identical(oldParent, this);
-    if (!parentChanged && identical(beforeChild, child.nextSibling))
-      return; //nothing to change
+    if (!parentChanged && identical(beforeChild, child.nextSibling)) return; //nothing to change
 
     if (oldParent == null && child.inDocument) //child.addToDocument was called
-      child._removeFromDocument();
+    child._removeFromDocument();
 
-    if (parentChanged)
-      child.beforeParentChanged_(this);
-    if (oldParent != null)
-      oldParent._removeChild(child, false);
+    if (parentChanged) child.beforeParentChanged_(this);
+    if (oldParent != null) oldParent._removeChild(child, false);
 
     _ViewImpl.link(this, child, beforeChild);
     addChildNode_(child, beforeChild);
 
-    if (inDocument)
-      child._mount();
-      //note: child.requestLayout won't be called (for sake of performance)
+    if (inDocument) child._mount();
+    //note: child.requestLayout won't be called (for sake of performance)
 
     onChildAdded_(child);
-    if (parentChanged)
-      child.onParentChanged_(oldParent);
+    if (parentChanged) child.onParentChanged_(oldParent);
   }
 
   /** Removes this view from its parent and, if attached, from the document.
@@ -343,27 +334,20 @@ class View implements StreamTarget<ViewEvent> {
    * If neither, nothing happens.
    */
   void remove() {
-    if (parent != null)
-      parent._removeChild(this);
-    else if (inDocument)
-      _removeFromDocument();
+    if (parent != null) parent._removeChild(this); else if (inDocument) _removeFromDocument();
   }
-  void _removeChild(View child, [bool notifyChild=true]) {
-    if (!identical(child.parent, this))
-      return;
+  void _removeChild(View child, [bool notifyChild = true]) {
+    if (!identical(child.parent, this)) return;
 
     beforeChildRemoved_(child);
-    if (notifyChild)
-      child.beforeParentChanged_(null);
+    if (notifyChild) child.beforeParentChanged_(null);
 
-    if (inDocument)
-      child._unmount();
+    if (inDocument) child._unmount();
 
     removeChildNode_(child);
     _ViewImpl.unlink(this, child);
 
-    if (notifyChild)
-      child.onParentChanged_(this);
+    if (notifyChild) child.onParentChanged_(this);
     onChildRemoved_(child);
   }
 
@@ -424,17 +408,15 @@ class View implements StreamTarget<ViewEvent> {
    * getter has been called before).
    */
   void set node(Element node) {
-    if (node.parent != null)
-      throw new UIError("Root element required, $node");
-    if (_node != null)
-      throw new UIError("Already assigned with $_node");
+    if (node.parent != null) throw new UIError("Root element required, $node");
+    if (_node != null) throw new UIError("Already assigned with $_node");
     _node = node;
     _initNode();
   }
   void _initNode() {
     node.classes
-      ..add(viewConfig.classPrefix)
-      ..add("${viewConfig.classPrefix}$className");
+        ..add(viewConfig.classPrefix)
+        ..add("${viewConfig.classPrefix}$className");
   }
   /** Creates and returns the DOM elements of this view.
    *
@@ -456,11 +438,10 @@ class View implements StreamTarget<ViewEvent> {
    * [uuid], dash ('-'), and subId.
    */
   Element getNode(String subId) {
-    if (subId == null || subId.isEmpty)
-      return node;
+    if (subId == null || subId.isEmpty) return node;
     subId = "#$uuid-$subId";
-    return inDocument ? document.query(subId): node.query(subId);
-      //For better performance, we use document.query if possible
+    return inDocument ? document.query(subId) : node.query(subId);
+    //For better performance, we use document.query if possible
   }
   /** Retrieve the mask node if the view is added to the document as a dialog, 
    * or null otherwise.
@@ -471,7 +452,7 @@ class View implements StreamTarget<ViewEvent> {
    */
   Element get maskNode {
     final di = dialogInfos[this];
-    return di != null ? di.mask: null;
+    return di != null ? di.mask : null;
   }
   /** Returns if this view has been attached to the document.
    */
@@ -519,19 +500,18 @@ class View implements StreamTarget<ViewEvent> {
 
     _ViewImpl.init();
 
-    if (ref == null && (ref = document.query("#v-main")) == null)
-      ref = document.body;
+    if (ref == null && (ref = document.query("#v-main")) == null) ref = document.body;
 
-    Node p, nxt;
+    Node p;
+    Node nxt;
     switch (mode) {
       case "before":
         p = ref.parent;
         nxt = ref;
         break;
       case "replace":
-        final refid = ref is Element ? (ref as Element).id: "";
-        if (!refid.isEmpty && id.isEmpty)
-          id = refid;
+        final refid = ref is Element ? (ref as Element).id : "";
+        if (!refid.isEmpty && id.isEmpty) id = refid;
 
         p = ref.parent;
         nxt = ref.nextNode;
@@ -544,26 +524,21 @@ class View implements StreamTarget<ViewEvent> {
       case "dialog":
         final dlgInfo = dialogInfos[this] = _ViewImpl.createDialog(ref, this);
         ViewUtil._views[p = dlgInfo.cave] = this; //yes, cave belongs to this view
-        if (profile.location.isEmpty)
-          profile.location = "center center";
+        if (profile.location.isEmpty) profile.location = "center center";
         break;
       default:
         p = ref;
         break;
     }
 
-    if (nxt != null)
-      nxt.parent.insertBefore(node, nxt);
-    else if (p != null)
-      p.nodes.add(node);
-    
+    if (nxt != null) nxt.parent.insertBefore(node, nxt); else if (p != null) p.nodes.add(node);
+
     _mount();
     classes.addAll(_rootClasses);
     rootViews.add(this);
 
-    if (layout != false)
-      requestLayout(layout == true);
-      //immediate: better feedback (and avoid ghost, i.e., showed at original place)
+    if (layout != false) requestLayout(layout == true);
+    //immediate: better feedback (and avoid ghost, i.e., showed at original place)
   }
   /** Removes this view from the document.
    * Notice: this method can be called only if parent is null and inDocument
@@ -574,10 +549,7 @@ class View implements StreamTarget<ViewEvent> {
     rootViews.remove(this);
 
     final dlgInfo = dialogInfos.remove(this);
-    if (dlgInfo != null)
-      ViewUtil._views.remove(dlgInfo.cave..remove());
-    else
-      node.remove();
+    if (dlgInfo != null) ViewUtil._views.remove(dlgInfo.cave..remove()); else node.remove();
   }
   /** Binds the view.
    */
@@ -614,8 +586,7 @@ class View implements StreamTarget<ViewEvent> {
    * this view is attached to the document. If not, [after] won't be called.
    */
   void afterMount_(AfterMount after) {
-    if (after == null)
-      throw new ArgumentError("after");
+    if (after == null) throw new ArgumentError("after");
     _afters.add([this, after]);
   }
   static final List<List> _afters = [];
@@ -693,8 +664,8 @@ class View implements StreamTarget<ViewEvent> {
    * + [y] - the reference point's Y coordinate if [reference] is not specified.
    * If [reference] is specified, [x] and [y] are ignored.
    */
-  void locateTo(String location, [View reference, int x=0, int y=0]) {
-      locateToView(null, this, location, reference, x, y);
+  void locateTo(String location, [View reference, int x = 0, int y = 0]) {
+    locateToView(null, this, location, reference, x, y);
   }
 
   /** Requests the layout manager to re-position the layout of this view.
@@ -728,7 +699,7 @@ class View implements StreamTarget<ViewEvent> {
    * If you'd like to handle all queued layouts, you can invoke
    * [ViewUtil.flushRequestedLayouts].
    */
-  void requestLayout([bool immediate=false, bool descendantOnly=false]) {
+  void requestLayout([bool immediate = false, bool descendantOnly = false]) {
     layoutManager.requestLayout(this, immediate, descendantOnly);
   }
   /** Handles the layout of the child views of this view.
@@ -750,9 +721,7 @@ class View implements StreamTarget<ViewEvent> {
    * If [shallMeasureContent] is false, `measureWidth(mctx, this)` is called.
    * If true, `measureContentWidth(mctx, this, true) is called.
    */
-  int measureWidth_(MeasureContext mctx)
-  => shallMeasureContent ? mctx.measureContentWidth(this, true):
-    mctx.measureWidth(this);
+  int measureWidth_(MeasureContext mctx) => shallMeasureContent ? mctx.measureContentWidth(this, true) : mctx.measureWidth(this);
   /** Measures the height of this view.
    * It is called by [LayoutManager].
    *
@@ -760,9 +729,7 @@ class View implements StreamTarget<ViewEvent> {
    * If [shallMeasureContent] is false, `measureHeight(mctx, this)` is called.
    * If true, `measureContentHeight(mctx, this, true) is called.
    */
-  int measureHeight_(MeasureContext mctx)
-  => shallMeasureContent ? mctx.measureContentHeight(this, true):
-    mctx.measureHeight(this);
+  int measureHeight_(MeasureContext mctx) => shallMeasureContent ? mctx.measureContentHeight(this, true) : mctx.measureHeight(this);
   /** Returns whether the dimension of this view shall be measured
    * based on the content shown on the document.
    *
@@ -774,8 +741,7 @@ class View implements StreamTarget<ViewEvent> {
    * is a root, `profile.width` and `profile.height` are assumed to be `flex`
    * if it is not specified.
    */
-  bool get shallMeasureContent
-  => !isViewGroup || (firstChild == null && DomUtil.hasContent(node));
+  bool get shallMeasureContent => !isViewGroup || (firstChild == null && DomUtil.hasContent(node));
 
   /** Returns whether the given child shall be handled by the layout manager.
    *
@@ -796,8 +762,7 @@ class View implements StreamTarget<ViewEvent> {
    * will be still called to arrange the layout of the child's child views.
    */
   bool shallLayout_(View child) {
-    if (!child.visible)
-      return false;
+    if (!child.visible) return false;
     final String v = child.style.position;
     return v.isEmpty || v == "absolute";
   }
@@ -831,10 +796,9 @@ class View implements StreamTarget<ViewEvent> {
    */
   void set visible(bool visible) {
     final changed = visible != this.visible;
-    node.style.display = visible ? "": "none";
+    node.style.display = visible ? "" : "none";
 
-    if (_inDoc && changed && visible)
-        requestLayout(true);
+    if (_inDoc && changed && visible) requestLayout(true);
   }
 
   /** Returns whether the view is draggable.
@@ -914,18 +878,16 @@ class View implements StreamTarget<ViewEvent> {
    * If [width] is assigned, this method is the same as [width].
    * However, if not assigned (i.e., null), this method returns `node.offsetWidth`.
    */
-  int get offsetWidth
-  => _width != null ? _width: node.offsetWidth;
-    //for better performance, we don't need to get the outer width if _width is
-    //assigned (because we use box-sizing: border-box)
+  int get offsetWidth => _width != null ? _width : node.offsetWidth;
+  //for better performance, we don't need to get the outer width if _width is
+  //assigned (because we use box-sizing: border-box)
   /** Returns the offset height of this view (never null).
    * If [height] is assigned, this method is the same as [height].
    * However, if not assigned (i.e., null), this method returns `node.offsetHeight`.
    */
-  int get offsetHeight
-  => _height != null ? _height: node.offsetHeight;
-    //for better performance, we don't need to get the outer height if _height is
-    //assigned (because we use box-sizing: border-box)
+  int get offsetHeight => _height != null ? _height : node.offsetHeight;
+  //for better performance, we don't need to get the outer height if _height is
+  //assigned (because we use box-sizing: border-box)
   /** Returns the viewable width of this view, excluding the borders, margins
    * and scrollbars.
    *
@@ -952,15 +914,14 @@ class View implements StreamTarget<ViewEvent> {
    * It takes into account any horizontal scrolling of the page.
    */
   Point get page {
-    if (_inDoc)
-      return DomUtil.page(node);
-    
-    int left = 0, top = 0;
-    for (View view = this;;) {
+    if (_inDoc) return DomUtil.page(node);
+
+    int left = 0;
+    int top = 0;
+    for (View view = this; ; ) {
       left += view.left;
       top += view.top;
-      if (view.style.position == "fixed" || (view = view.parent) == null)
-        return new Point(left, top);
+      if (view.style.position == "fixed" || (view = view.parent) == null) return new Point(left, top);
     }
   }
   /** Returns the layout instruction of this view.
@@ -970,11 +931,10 @@ class View implements StreamTarget<ViewEvent> {
    * view's [profile].
    */
   LayoutDeclaration get layout {
-    if (_layout == null)
-      _layout = new LayoutDeclaration(this);
+    if (_layout == null) _layout = new LayoutDeclaration(this);
     return _layout;
   }
-  
+
   /** Returns the profile, i.e., the layout requirement, of this view.
    * It provides additional information for the parent view to
    * layout this view.
@@ -982,16 +942,14 @@ class View implements StreamTarget<ViewEvent> {
    * + See also [layout].
    */
   ProfileDeclaration get profile {
-    if (_profile == null)
-      _profile = new ProfileDeclaration(this);
+    if (_profile == null) _profile = new ProfileDeclaration(this);
     return _profile;
   }
 
   /** Retuns the CSS style.
    */
   CssStyleDeclaration get style {
-    if (_style == null)
-      _style = new _StyleImpl(this);
+    if (_style == null) _style = new _StyleImpl(this);
     return _style;
   }
   /** Returns the style classes.
@@ -1021,8 +979,7 @@ class View implements StreamTarget<ViewEvent> {
   /** Removes an event listener.
    */
   void removeEventListener(String type, ViewEventListener listener) {
-    if (_evlInfo != null)
-      _evlInfo.remove(type, listener);
+    if (_evlInfo != null) _evlInfo.remove(type, listener);
   }
 
   /** Sends an event to this view.
@@ -1040,14 +997,12 @@ class View implements StreamTarget<ViewEvent> {
    * + returns true if it has been dispatched to one of the registered listeners.
    */
   bool sendEvent(ViewEvent event, {String type, bool bubbles: true}) {
-    if (event.target == null)
-      event.target = this;
+    if (event.target == null) event.target = this;
 
     View view = this;
     bool dispatched = false;
     do {
-      if (view._evlInfo != null && view._evlInfo.send(event, type))
-        dispatched = true;
+      if (view._evlInfo != null && view._evlInfo.send(event, type)) dispatched = true;
     } while (bubbles && !event.isPropagationStopped && (view = view.parent) != null);
     return dispatched;
   }
@@ -1059,9 +1014,11 @@ class View implements StreamTarget<ViewEvent> {
    * hierarchy of views.
    */
   void postEvent(ViewEvent event, {String type, bool bubbles: true}) {
-    Timer.run(() {sendEvent(event, type: type, bubbles: bubbles);});
-      //note: the order of messages is preserved across all views (and message queues)
-      //CONSIDER if it is better to have a queue shared by views/message queues/broadcaster
+    Timer.run(() {
+      sendEvent(event, type: type, bubbles: bubbles);
+    });
+    //note: the order of messages is preserved across all views (and message queues)
+    //CONSIDER if it is better to have a queue shared by views/message queues/broadcaster
   }
 
   /** Called when the first DOM event listener is registered for the given type.
@@ -1104,8 +1061,7 @@ class View implements StreamTarget<ViewEvent> {
    *
    * See also [mountset].
    */
-  Map<String, dynamic> get dataset
-  => _dataset != null ? _dataset: MapUtil.onDemand(() => _dataset = new HashMap());
+  Map<String, dynamic> get dataset => _dataset != null ? _dataset : MapUtil.onDemand(() => _dataset = new HashMap());
   /**
    * A map of application-specific data that exist only
    * if the view is attached to the document. It is useful if you'd like to
@@ -1117,16 +1073,14 @@ class View implements StreamTarget<ViewEvent> {
    *
    * See also [dataset].
    */
-  Map<String, dynamic> get mountset
-  => _mntset != null ? _mntset: MapUtil.onDemand(() => _mntset = new HashMap());
+  Map<String, dynamic> get mountset => _mntset != null ? _mntset : MapUtil.onDemand(() => _mntset = new HashMap());
 
   /** A map of annotations.
    * Annotations ([Annotation]) are the meta information providing
    * additional information about how to handle a view.
    * The meaning depends on the tool or utility that handles a view.
    */
-  Map<String, Annotation> get annotations
-  => _annos != null ? _annos: MapUtil.onDemand(() => _annos = new HashMap());
+  Map<String, Annotation> get annotations => _annos != null ? _annos : MapUtil.onDemand(() => _annos = new HashMap());
 
   String toString() => "$className(${id.isEmpty ? _uuid != null ? _uuid: '': id})";
 }

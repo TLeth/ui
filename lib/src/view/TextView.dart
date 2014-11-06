@@ -20,8 +20,7 @@ class TextView extends View {
    * The text will be encoded to make sure it is valid HTML text.
    */
   TextView([String text]) {
-    if (text != null && !text.isEmpty)
-      this.text = text; //have render_() called
+    if (text != null && !text.isEmpty) this.text = text; //have render_() called
   }
   /** Instantiates with a HTML fragment.
    *
@@ -66,15 +65,14 @@ class TextView extends View {
    *
    * Default: it encodes [text] by replacing linefeed with <br/>, if any.
    */
-  String get encodedText => XmlUtil.encode(text, multiLine:true);
+  String get encodedText => XmlUtil.encode(text, multiLine: true);
 
   /** Creates and returns the DOM elements of this view.
    *
    * Default: it creates a DIV element containing [encodedText]
    */
   @override
-  Element render_()
-  => new Element.html("<div>$encodedText</div>");
+  Element render_() => new Element.html("<div>$encodedText</div>");
 
   @override
   /** Returns false to indicate this view doesn't allow any child views.

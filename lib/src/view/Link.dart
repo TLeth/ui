@@ -10,14 +10,14 @@ class Link extends TextView {
   /** Instantiates with a plain text.
    * The text will be encoded to make sure it is valid HTML text.
    */
-  Link([String text]): super(text);
+  Link([String text]) : super(text);
   /** Instantiates with a HTML fragment.
    *
    * + [html] specifies a HTML fragment.
    * Notice it must be a valid HTML fragment. Otherwise, the result is
    * unpredictable.
    */
-  Link.fromHtml(String html): super.fromHtml(html);
+  Link.fromHtml(String html) : super.fromHtml(html);
 
   /** Returns the INPUT element in this view.
    */
@@ -72,8 +72,7 @@ class Link extends TextView {
   }
 
   @override
-  Element render_()
-  => new Element.html("<a>$encodedText</a>");
+  Element render_() => new Element.html("<a>$encodedText</a>");
   @override
   String get className => "Link";
 }

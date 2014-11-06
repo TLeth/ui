@@ -8,8 +8,7 @@ part of rikulo_view;
  */
 class Image extends View {
   Image([String src]) {
-    if (src != null && !src.isEmpty)
-      imageNode.src = src;
+    if (src != null && !src.isEmpty) imageNode.src = src;
   }
 
   /** Returns the source URI of the image, or null if not assigned yet.
@@ -26,23 +25,19 @@ class Image extends View {
   ImageElement get imageNode => node;
 
   @override
-  Element render_()
-  => new Element.tag("img");
+  Element render_() => new Element.tag("img");
   /** Returns false to indicate this view doesn't allow any child views.
    */
   @override
   bool get isViewGroup => false;
 
-  int measureWidth_(MeasureContext mctx)
-  => mctx.measureContentWidth(this, false); //no need to autowidth
-  int measureHeight_(MeasureContext mctx)
-  => mctx.measureContentHeight(this, false); //no need to autowidth
+  int measureWidth_(MeasureContext mctx) => mctx.measureContentWidth(this, false); //no need to autowidth
+  int measureHeight_(MeasureContext mctx) => mctx.measureContentHeight(this, false); //no need to autowidth
 
   void mount_() {
     super.mount_();
 
-    if (width == null || height == null)
-      layoutManager.waitImageLoaded(src);
+    if (width == null || height == null) layoutManager.waitImageLoaded(src);
   }
 
   @override

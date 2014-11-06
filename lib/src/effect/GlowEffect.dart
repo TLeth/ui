@@ -7,11 +7,11 @@ part of rikulo_effect;
  * A glowing effect to apply on element.
  */
 class GlowEffect extends EasingMotion {
-  
+
   /** The element to which this effect applies.
    */
   final Element element;
-  
+
   /** Create a GlowEffect of given [period] in milliseconds, which assigns
    * a CSS white shadow on the element.
    * 
@@ -19,22 +19,18 @@ class GlowEffect extends EasingMotion {
    * + [start]: Called when the effect starts.
    * + [end]: Called when the effect ends.
    */
-  GlowEffect(Element element, {int period: 1000, num tempo: 0.3, 
-  Color color, int blur: 10, int spread: 2, MotionStart start, MotionEnd end}) : 
-  this.element = element, 
-  super(createAction(element, color, blur, spread), start: (MotionState state) {
-    if (start != null)
-      start(state);
-    state.data = element.style.boxShadow;
-    
-  }, end: (MotionState state) {
-    element.style.boxShadow = state.data == null ? "" : state.data;
-    if (end != null)
-      end(state);
-    
-  }, period: period, 
-  easing: (num t) => t < tempo ? (t * t / tempo / tempo) : (1 - t) / (1 - tempo));
-  
+  GlowEffect(Element element, {int period: 1000, num tempo: 0.3, Color color, int blur: 10, int spread: 2, MotionStart start, MotionEnd end})
+      : this.element = element,
+        super(createAction(element, color, blur, spread), start: (MotionState state) {
+        if (start != null) start(state);
+        state.data = element.style.boxShadow;
+
+      }, end: (MotionState state) {
+        element.style.boxShadow = state.data == null ? "" : state.data;
+        if (end != null) end(state);
+
+      }, period: period, easing: (num t) => t < tempo ? (t * t / tempo / tempo) : (1 - t) / (1 - tempo));
+
   /** Create a glowing MotionAction by applying a color shadow on [element].
    */
   static MotionAction createAction(Element element, Color color, int blur, int spread) {
@@ -46,5 +42,5 @@ class GlowEffect extends EasingMotion {
       element.style.boxShadow = "$pref$x)";
     };
   }
-  
+
 }

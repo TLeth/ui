@@ -4,35 +4,29 @@
 part of rikulo_view_select;
 
 class PseudoClass {
-  
+
   final String name;
   String parameter;
-  
+
   PseudoClass(this.name);
-  
+
   String toString() {
     StringBuffer sb = new StringBuffer(":${name}");
-    if (parameter != null)
-      sb.write("(${parameter})");
+    if (parameter != null) sb.write("(${parameter})");
     return sb.toString();
   }
-  
+
   // built-in implementations //
   static Function getDefinition(String name) {
     switch (name) {
       case "first-child":
-        return (ViewMatchContext ctx, String param) => 
-            param == null && ctx.view.previousSibling == null;
+        return (ViewMatchContext ctx, String param) => param == null && ctx.view.previousSibling == null;
       case "last-child":
-        return (ViewMatchContext ctx, String param) => 
-            param == null && ctx.view.nextSibling == null;
+        return (ViewMatchContext ctx, String param) => param == null && ctx.view.nextSibling == null;
       case "only-child":
-        return (ViewMatchContext ctx, String param) => 
-            param == null && ctx.view.previousSibling == null 
-            && ctx.view.nextSibling == null;
+        return (ViewMatchContext ctx, String param) => param == null && ctx.view.previousSibling == null && ctx.view.nextSibling == null;
       case "empty":
-        return (ViewMatchContext ctx, String param) => 
-            param == null && ctx.view.childCount == 0;
+        return (ViewMatchContext ctx, String param) => param == null && ctx.view.childCount == 0;
       case "nth-child":
         return (ViewMatchContext ctx, String param) => param != null; // TODO
       case "last-nth-child":
@@ -41,5 +35,5 @@ class PseudoClass {
         return null;
     }
   }
-  
+
 }

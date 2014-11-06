@@ -13,7 +13,9 @@ class DataEvent {
   final DataModel _model;
   final String _type;
 
-  DataEvent(DataModel model, String type): _model = model, _type = type;
+  DataEvent(DataModel model, String type)
+      : _model = model,
+        _type = type;
 
   /** Returns the type of this event.
    */
@@ -28,7 +30,7 @@ class DataEvent {
  * A factory to expose [DataModel]'s events as Streams.
  */
 class DataEventStreamProvider<T extends DataEvent> extends StreamProvider<T> {
-  const DataEventStreamProvider(String eventType): super(eventType);
+  const DataEventStreamProvider(String eventType) : super(eventType);
 }
 
 const DataEventStreamProvider<DataEvent> _allEvent = const DataEventStreamProvider<DataEvent>('all');

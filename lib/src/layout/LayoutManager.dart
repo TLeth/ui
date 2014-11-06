@@ -13,10 +13,14 @@ class LayoutManager extends RunOnceViewManager {
   final Map<String, Layout> _layouts;
   final Set<String> _imgWaits;
   final List<_Task> _afters;
-  int _inLayout = 0, _inCallback = 0;
+  int _inLayout = 0;
+  int _inCallback = 0;
 
-  LayoutManager(): _layouts = new HashMap(), _imgWaits = new Set(), _afters = [],
-  super(null) {
+  LayoutManager()
+      : _layouts = new HashMap(),
+        _imgWaits = new Set(),
+        _afters = [],
+        super(null) {
     addLayout("linear", new LinearLayout());
     addLayout("tile", new TileLayout());
 
@@ -45,9 +49,7 @@ class LayoutManager extends RunOnceViewManager {
   /** Returns the type of the given layout, or null if it is not registered.
    */
   String getType(Layout layout) {
-    for (final nm in _layouts.keys)
-      if (layout == _layouts[nm])
-        return nm;
+    for (final nm in _layouts.keys) if (layout == _layouts[nm]) return nm;
   }
 
   /** Handles the layout of the given view.
@@ -57,9 +59,7 @@ class LayoutManager extends RunOnceViewManager {
       final View parent = view.parent;
       //Start the layout from parent only if necessary
       //Currently, we start from parent if in some layout, not anchored/popup
-      if (view.profile.anchorView == null
-      && parent != null && !parent.layout.type.isEmpty)
-        view = parent; //start from parent (slower performance but safer)
+      if (view.profile.anchorView == null && parent != null && !parent.layout.type.isEmpty) view = parent; //start from parent (slower performance but safer)
     }
 
     if (immediate) flush(view, true); //yes, force the depended task to flush too
@@ -74,12 +74,9 @@ class LayoutManager extends RunOnceViewManager {
   bool get inLayout => _inLayout > 0 && _inCallback <= 0;
 
   @override
-  void flush([View view, bool force=false]) {
+  void flush([View view, bool force = false]) {
     //ignore flush if not empty (_onImageLoaded will invoke it later)
-    if (_imgWaits.isEmpty)
-      super.flush(view, force);
-    else if (view != null)
-      queue(view); //do it later
+    if (_imgWaits.isEmpty) super.flush(view, force); else if (view != null) queue(view); //do it later
   }
 
   @override
@@ -94,8 +91,7 @@ class LayoutManager extends RunOnceViewManager {
         //including anchored
         rootLayout(mctx, view);
       } else if (view.profile.anchorView != null) {
-        new AnchorRelation(parent)
-          ._layoutAnchored(mctx, view.profile.anchorView, view);
+        new AnchorRelation(parent)._layoutAnchored(mctx, view.profile.anchorView, view);
       } else if (parent.layout.type.isEmpty) {
         mctx.setWidthByProfile(view, () => parent.clientWidth);
         mctx.setHeightByProfile(view, () => parent.clientHeight);
@@ -106,8 +102,7 @@ class LayoutManager extends RunOnceViewManager {
       if (--_inLayout <= 0 && isQueueEmpty() && !_afters.isEmpty) {
         final List<_Task> afters = new List.from(_afters);
         _afters.clear();
-        for (final _Task task in afters)
-          task();
+        for (final _Task task in afters) task();
       }
     }
   }
@@ -115,10 +110,7 @@ class LayoutManager extends RunOnceViewManager {
    * If there is no pending layouts, it will be executed immediately.
    */
   void afterLayout(void task()) {
-    if (_inLayout <= 0 && isQueueEmpty())
-      task();
-    else
-      _afters.add(task);
+    if (_inLayout <= 0 && isQueueEmpty()) task(); else _afters.add(task);
   }
 
   /** Handles the layout of the given view.
@@ -149,15 +141,15 @@ class LayoutManager extends RunOnceViewManager {
       var func = (event) { //DOM event
         _onImageLoaded(imgURI);
       };
-      img..onLoad.listen(func)
-        ..onError.listen(func)
-        ..src = imgURI;
+      img
+          ..onLoad.listen(func)
+          ..onError.listen(func)
+          ..src = imgURI;
     }
   }
   void _onImageLoaded(String imgURI) {
     _imgWaits.remove(imgURI);
-    if (_imgWaits.isEmpty)
-      flush(); //flush all
+    if (_imgWaits.isEmpty) flush(); //flush all
   }
 }
 

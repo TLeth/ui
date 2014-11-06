@@ -4,7 +4,7 @@
 part of rikulo_view_select;
 
 class Selectors {
-  
+
   /**
    * Parse the query string to obtain the selector objects.
    */
@@ -15,9 +15,9 @@ class Selectors {
     int state = STATE_PRE_SLCT;
     Selector curr = null;
     SimpleSelectorSequence currSeq = null;
-    
+
     for (Token t in tokens) {
-      
+
       if (t.type == Token.TYPE_SELECTOR_SEPARATOR) {
         switch (state) {
           case STATE_IN_SLCT:
@@ -34,14 +34,13 @@ class Selectors {
         state = STATE_POST_SEPR;
         continue;
       }
-      
+
       // request a sequence instance
       if (currSeq == null && _requireSequence(state, t.type)) {
-        if (curr == null)
-          selectors.add(curr = new Selector(selectors.length));
+        if (curr == null) selectors.add(curr = new Selector(selectors.length));
         currSeq = curr.addSequence();
       }
-      
+
       // handle misc case here, as Dart does not support unbreaked case.
       switch (state) {
         case STATE_POST_SEPR:
@@ -55,8 +54,7 @@ class Selectors {
             case Token.TYPE_CBN_CHILD:
             case Token.TYPE_CBN_GENERAL_SIBLING:
             case Token.TYPE_CBN_ADJACENT_SIBLING:
-              if (curr == null)
-                throw new SelectorParseException.unexpectedToken(source, t);
+              if (curr == null) throw new SelectorParseException.unexpectedToken(source, t);
               curr.addCombinator(t);
               state = STATE_POST_COMB;
               continue;
@@ -69,18 +67,16 @@ class Selectors {
           }
           break;
         case STATE_IN_PSDOCLS_PARAM:
-          if (t.type != Token.TYPE_IDENTIFIER)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (t.type != Token.TYPE_IDENTIFIER) throw new SelectorParseException.unexpectedToken(source, t);
           currSeq.pseudoClasses.last.parameter = t.source(source);
           state = STATE_POST_PSDOCLS_PARAM;
           continue;
         case STATE_POST_PSDOCLS_PARAM:
-          if (t.type != Token.TYPE_CLOSE_PAREN)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (t.type != Token.TYPE_CLOSE_PAREN) throw new SelectorParseException.unexpectedToken(source, t);
           state = STATE_IN_SLCT;
           continue;
       }
-      
+
       // handle misc case here, as Dart does not support unbreaked case.
       switch (state) {
         case STATE_POST_SEPR:
@@ -108,16 +104,14 @@ class Selectors {
         case STATE_IN_ID:
         case STATE_IN_CLASS:
         case STATE_IN_PSDOCLS:
-          if (t.type != Token.TYPE_IDENTIFIER)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (t.type != Token.TYPE_IDENTIFIER) throw new SelectorParseException.unexpectedToken(source, t);
           break;
       }
-      
+
       // main switch
       switch (state) {
         case STATE_POST_COMB:
-          if (t.type != Token.TYPE_WHITESPACE)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (t.type != Token.TYPE_WHITESPACE) throw new SelectorParseException.unexpectedToken(source, t);
           state = STATE_PRE_SLCT;
           break;
         case STATE_POST_SEPR:
@@ -141,13 +135,11 @@ class Selectors {
           }
           break;
         case STATE_POST_SLCT:
-          if (t.type != Token.TYPE_WHITESPACE)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (t.type != Token.TYPE_WHITESPACE) throw new SelectorParseException.unexpectedToken(source, t);
           state = STATE_PRE_COMB;
           break;
         case STATE_IN_ID:
-          if (currSeq.id != null)
-            throw new SelectorParseException.unexpectedToken(source, t);
+          if (currSeq.id != null) throw new SelectorParseException.unexpectedToken(source, t);
           currSeq.id = t.source(source);
           state = STATE_IN_SLCT;
           break;
@@ -162,9 +154,9 @@ class Selectors {
         default:
           throw new SelectorParseException.unexpectedToken(source, t);
       }
-      
+
     } // end of token list for-loop
-    
+
     // check ending state
     switch (state) {
       case STATE_IN_ID:
@@ -177,13 +169,12 @@ class Selectors {
       case STATE_POST_PSDOCLS_PARAM:
         throw new SelectorParseException.unexpectedEnding(source);
     }
-    
+
     return selectors;
   }
-  
+
   static bool _requireSequence(int state, int type) {
-    if (type != Token.TYPE_IDENTIFIER && type != Token.TYPE_UNIVERSAL)
-      return false;
+    if (type != Token.TYPE_IDENTIFIER && type != Token.TYPE_UNIVERSAL) return false;
     switch (state) {
       case STATE_POST_SEPR:
       case STATE_PRE_COMB:
@@ -197,14 +188,14 @@ class Selectors {
         return false;
     }
   }
-    
+
   static const int STATE_PRE_SLCT = 1;
   static const int STATE_IN_SLCT = 9;
   static const int STATE_POST_SLCT = 14;
   static const int STATE_POST_COMB = 2;
   static const int STATE_PRE_COMB = 3;
   static const int STATE_POST_SEPR = 17;
-  
+
   static const int STATE_IN_TYPE = 4;
   static const int STATE_IN_ID = 5;
   static const int STATE_IN_CLASS = 6;
@@ -212,59 +203,52 @@ class Selectors {
   static const int STATE_PRE_PSDOCLS_PARAM = 8;
   static const int STATE_IN_PSDOCLS_PARAM = 15;
   static const int STATE_POST_PSDOCLS_PARAM = 16;
-  
+
   static const int STATE_PRE_ATTR_NAME = 10;
   static const int STATE_PRE_ATTR_OP = 11;
   static const int STATE_PRE_ATTR_VALUE = 12;
   static const int STATE_POST_ATTR_VALUE = 13;
-  
+
   /**
    * Tokenize the query string.
    */
   static List<Token> tokenize(String source) {
-    
+
     List<Token> tokens = new List<Token>();
     final int len = source.length;
-    
+
     int pclz = TOKEN_CLASS_OTHER;
     Token curr = null;
-    
+
     for (int i = 0; i < len; i++) {
-      String c = source.substring(i, i+1);
+      String c = source.substring(i, i + 1);
       int ci = source.codeUnitAt(i);
       int clz = _getTokenClass(ci);
-      
+
       // TODO: concern attribute
-      if (curr != null && clz == pclz && clz != TOKEN_CLASS_OTHER)
-        curr.extend();
-      else
-        tokens.add(curr = new Token.fromChar(c, i));
-      
+      if (curr != null && clz == pclz && clz != TOKEN_CLASS_OTHER) curr.extend(); else tokens.add(curr = new Token.fromChar(c, i));
+
       pclz = clz;
     }
-    
+
     return tokens;
   }
-  
+
   static const int TOKEN_CLASS_LITERAL = 0;
   static const int TOKEN_CLASS_WHITESPACE = 1;
   static const int TOKEN_CLASS_OTHER = 2;
-  
+
   static int _getTokenClass(int c) {
-    return _isWhitespace(c) ? TOKEN_CLASS_WHITESPACE : 
-      _isLiteral(c) ? TOKEN_CLASS_LITERAL : TOKEN_CLASS_OTHER;
+    return _isWhitespace(c) ? TOKEN_CLASS_WHITESPACE : _isLiteral(c) ? TOKEN_CLASS_LITERAL : TOKEN_CLASS_OTHER;
   }
-  
+
   static bool _isLiteral(int c) {
-    return (c > 96 && c < 123) /* a-z */ 
-        || (c > 64 && c < 91) /* A-Z */
-        || (c > 47 && c < 58) /* 0-9 */
-        || c == 95 /* _ */ || c == 45; /* - */
+    return (c > 96 && c < 123) /* _ */ || (c > 64 && c < 91) /* _ */ || (c > 47 && c < 58) /* _ */ || c == 95 /* _ */ || c == 45;
+    /* - */
   }
-  
+
   static bool _isWhitespace(int c) {
-    return (c == 32/*' '*/ || c == 9/*'\t'*/ || c == 10/*'\n'*/ ||
-        c == 13/*'\r'*/);
+    return (c == 32 /*'\n'*/ || c == 9 /*'\n'*/ || c == 10 /*'\n'*/ || c == 13/*'\r'*/);
   }
-  
+
 }

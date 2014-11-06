@@ -23,75 +23,82 @@ final Animator _animator = new Animator();
 /** The state in a [Motion].
  */
 class MotionState {
-  
+
   final int startTime;
-  int _current, _elapsed, _paused, _pauseStart;
+  int _current;
+  int _elapsed;
+  int _paused;
+  int _pauseStart;
   var data;
-  
-  MotionState._(int current, {int start, int paused : 0}) : 
-    startTime = start != null ? start : current, 
-    _current = current, _elapsed = 0, _paused = paused;
-  
+
+  MotionState._(int current, {int start, int paused: 0})
+      : startTime = start != null ? start : current,
+        _current = current,
+        _elapsed = 0,
+        _paused = paused;
+
   /** Return current time, in the form of millisecond since epoch.
    */
   int get currentTime => _current;
-  
+
   /** Return elapsed time since the previous animation frame. At the first 
    * animation frame, the value is 0.
    */
   int get elapsedTime => _elapsed;
-  
+
   /** Return paused time in milliseconds.
    */
   int get pausedTime => _paused;
-  
+
   /** Return the total running time in milliseconds since motion starts, 
    * excluding paused time.
    */
   int get runningTime => _current - startTime - _paused;
-  
+
   /** Return true if paused.
    */
   bool get isPaused => _pauseStart != null;
-  
+
   void _snapshot(int current) {
     _elapsed = current - _current;
     _current = current;
   }
-  
+
   void _pause(int current) {
     _pauseStart = current;
   }
-  
+
   void _resume(int current) {
     if (_pauseStart != null) {
       _paused += current - _pauseStart;
       _pauseStart = null;
     }
   }
-  
+
 }
 
 /**
  * The control object of an [AnimatorTask], with a built-in life cycle and control APIs.
  */
 class Motion {
-  
+
   static const _MOTION_STATE_INIT = 0;
   static const _MOTION_STATE_RUNNING = 1;
   static const _MOTION_STATE_PAUSED = 2;
-  
+
   final MotionStart _start;
   final MotionMove _move;
   final MotionEnd _end;
   AnimatorTask _task;
-  
+
   MotionState _state;
   int _stateFlag = _MOTION_STATE_INIT;
-  
-  Motion({MotionStart start, MotionMove move, MotionEnd end}) : 
-    _start = start, _move = move, _end = end {
-    
+
+  Motion({MotionStart start, MotionMove move, MotionEnd end})
+      : _start = start,
+        _move = move,
+        _end = end {
+
     _task = (int time) {
       if (_stateFlag == _MOTION_STATE_INIT) {
         _state = new MotionState._(time);
@@ -106,8 +113,7 @@ class Motion {
             onResume(_state);
           }
           bool cont = onMove(_state);
-          if (cont == null)
-            cont = true;
+          if (cont == null) cont = true;
           if (!cont) {
             onEnd(_state);
             _state = null;
@@ -123,48 +129,45 @@ class Motion {
       }
     };
   }
-  
+
   /**
    * The Animator associated with the motion.
    */
   Animator get animator => _animator;
-  
+
   /** Retrieve the current [MotionState]. [null] if not running.
    */
   MotionState get state => _state;
-  
+
   /**
    * Called in the first animator iteration after the motion is added into animator.
    */
   void onStart(MotionState state) {
-    if (_start != null)
-      _start(state);
+    if (_start != null) _start(state);
   }
-  
+
   /**
    * Called in each animator iteration, when the motion is at running state.
    */
-  bool onMove(MotionState state) => 
-      _move == null || _move(state);
-  
+  bool onMove(MotionState state) => _move == null || _move(state);
+
   /**
    * Called after the runner returns false. Calling stop() will not invoke this function.
    */
   void onEnd(MotionState state) {
-    if (_end != null)
-      _end(state);
+    if (_end != null) _end(state);
   }
-  
+
   /**
    * Called in the first animator iteration after the motion is paused.
    */
   void onPause(MotionState state) {}
-  
+
   /**
    * Called in the first animator iteration after the motion is resumed from pause.
    */
   void onResume(MotionState state) {}
-  
+
   /**
    * Start the motion, or resume it from a pause.
    */
@@ -180,16 +183,15 @@ class Motion {
         break;
     }
   }
-  
+
   /**
    * Pause the motion. 
    */
   void pause() {
-    if (_stateFlag != _MOTION_STATE_RUNNING)
-      return;
+    if (_stateFlag != _MOTION_STATE_RUNNING) return;
     _stateFlag = _MOTION_STATE_PAUSED;
   }
-  
+
   /**
    * Stop the motion and reset the internal states.
    */
@@ -198,12 +200,12 @@ class Motion {
     _state = null;
     _stateFlag = _MOTION_STATE_INIT;
   }
-  
+
   /**
    * Return true if the motion is at running state.
    */
   bool get isRunning => _stateFlag == _MOTION_STATE_RUNNING;
-  
+
   /**
    * Return true if the motion is at paused state.
    */

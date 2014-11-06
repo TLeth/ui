@@ -10,7 +10,7 @@ class LayoutDeclaration extends Declaration {
   final View _owner;
   Layout _handler;
 
-  LayoutDeclaration(View owner): _owner = owner;
+  LayoutDeclaration(View owner) : _owner = owner;
 
   /** The type of the layout.
    *
@@ -38,12 +38,10 @@ class LayoutDeclaration extends Declaration {
    * be thrown. In other words, this method won't return null.
    */
   Layout get handler {
-    if (_handler != null)
-      return _handler;
+    if (_handler != null) return _handler;
 
     final Layout handler = layoutManager.getLayout(type);
-    if (handler == null)
-      throw new UIError("Unknown type, ${type}");
+    if (handler == null) throw new UIError("Unknown type, ${type}");
     return handler;
   }
   /** The handler for handling this layout.
@@ -52,7 +50,7 @@ class LayoutDeclaration extends Declaration {
    */
   void set handler(Layout layout) {
     _handler = layout;
-    type = layout != null ? layoutManager.getType(layout): null;
+    type = layout != null ? layoutManager.getType(layout) : null;
   }
 
   /** The orientation.

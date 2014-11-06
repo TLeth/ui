@@ -44,12 +44,13 @@ class ViewEvent {
    * + [target] is the view that this event is targeting. If not specified, it will
    * be assigned automatically when the sendEvent method is called.
    */
-  ViewEvent(String type, [View target]):
-  _type = type, _stamp = new DateTime.now().millisecondsSinceEpoch {
+  ViewEvent(String type, [View target])
+      : _type = type,
+        _stamp = new DateTime.now().millisecondsSinceEpoch {
     this.target = currentTarget = target;
   }
   /** Constructor for subclass. */
-  ViewEvent._(this._type, View target): _stamp = 0 {
+  ViewEvent._(this._type, View target) : _stamp = 0 {
     this.target = currentTarget = target;
   }
 
@@ -93,15 +94,11 @@ class ViewEvent {
 * The original DOM event can be found in [cause].
 */
 class DomEvent extends ViewEvent {
-  factory DomEvent(Event cause, [String type, View target])
-  => cause is MouseEvent ? new _MSEvent(cause, type, target):
-    cause is KeyboardEvent ? new _KBEvent(cause, type, target):
-    cause is UIEvent ? new _UIEvent(cause, type, target):
-      new DomEvent._(cause, type, target);
+  factory DomEvent(Event cause, [String type, View target]) => cause is MouseEvent ? new _MSEvent(cause, type, target) : cause is KeyboardEvent ? new _KBEvent(cause, type, target) : cause is UIEvent ? new _UIEvent(cause, type, target) : new DomEvent._(cause, type, target);
 
-  DomEvent._(Event cause, String type, View target):
-  super._(type != null ? type: cause.type, target),
-  this.cause = cause;
+  DomEvent._(Event cause, String type, View target)
+      : super._(type != null ? type : cause.type, target),
+        this.cause = cause;
 
   /** The DOM event sent by the browser that causes this event to be fired.
    */
@@ -171,8 +168,7 @@ class DomEvent extends ViewEvent {
 }
 
 class _UIEvent extends DomEvent {
-  _UIEvent(UIEvent cause, String type, View target):
-  super._(cause, type, target);
+  _UIEvent(UIEvent cause, String type, View target) : super._(cause, type, target);
 
   UIEvent get _uc => cause;
 
@@ -182,8 +178,7 @@ class _UIEvent extends DomEvent {
   String toString() => "UIEvent($target,$cause)";
 }
 class _KBEvent extends _UIEvent {
-  _KBEvent(KeyboardEvent cause, String type, View target):
-  super(cause, type, target);
+  _KBEvent(KeyboardEvent cause, String type, View target) : super(cause, type, target);
 
   KeyboardEvent get _kc => cause;
 
@@ -198,8 +193,7 @@ class _KBEvent extends _UIEvent {
   String toString() => "KeyboardEvent($target,$cause)";
 }
 class _MSEvent extends _UIEvent {
-  _MSEvent(MouseEvent cause, String type, View target):
-  super(cause, type, target);
+  _MSEvent(MouseEvent cause, String type, View target) : super(cause, type, target);
 
   MouseEvent get _mc => cause;
 
@@ -252,8 +246,9 @@ class ActivateEvent extends ViewEvent {
    * The source parameter is either an instance of [View], a DOM element, or null.
    * If null, it means all pop ups shall be closed.
    */
-  ActivateEvent(var source, [String type="activate"]):
-  _source = source, super(type) {
+  ActivateEvent(var source, [String type = "activate"])
+      : _source = source,
+        super(type) {
   }
   /** Returns the UI object triggers this event.
    * It is either a view or a DOM element.
@@ -265,18 +260,17 @@ class ActivateEvent extends ViewEvent {
    * + [popup] is either a view or an element.
    */
   bool shallClose(popup) {
-    if (source == null)
-      return true;
+    if (source == null) return true;
 
-    var srcNode, popNode;
+    var srcNode;
+    var popNode;
     if (source is View) {
-      if (popup is View)
-        return !source.isDescendantOf(popup);
+      if (popup is View) return !source.isDescendantOf(popup);
       srcNode = source.node;
       popNode = popup;
     } else {
       srcNode = source;
-      popNode = popup is View ? popup.node: popup;
+      popNode = popup is View ? popup.node : popup;
     }
     return !DomUtil.isDescendant(srcNode, popNode);
   }
@@ -288,8 +282,9 @@ class ActivateEvent extends ViewEvent {
  */
 class ChangeEvent<T> extends ViewEvent {
   final T _value;
-  ChangeEvent(T value, [String type="change", View target]):
-  super(type, target), _value = value;
+  ChangeEvent(T value, [String type = "change", View target])
+      : super(type, target),
+        _value = value;
 
   /** Returns the value.
    */
@@ -303,8 +298,9 @@ class ChangeEvent<T> extends ViewEvent {
  */
 class LayoutEvent extends ViewEvent {
   final MeasureContext _context;
-  LayoutEvent(MeasureContext context, [String type="layout", View target]):
-  super(type, target), _context = context;
+  LayoutEvent(MeasureContext context, [String type = "layout", View target])
+      : super(type, target),
+        _context = context;
 
   /** Returns the context.
    */
@@ -316,14 +312,13 @@ class LayoutEvent extends ViewEvent {
 /** Event representing scrolling.
  */
 class ScrollEvent extends ViewEvent {
-  
+
   final ScrollerState state;
-  
+
   /** Constructor
    * 
    */
-  ScrollEvent(String type, View target, this.state) : 
-    super(type, target);
+  ScrollEvent(String type, View target, this.state) : super(type, target);
 }
 
 /**
@@ -339,15 +334,17 @@ class SelectEvent<T> extends ViewEvent {
    * + [selectedIndex] is the index of the first selected value, or -1
    * if [selectedValues] is empty.
    */
-  SelectEvent(Iterable<T> selectedValues, int selectedIndex, [String type="select", View target]):
-  super(type, target), _selectedValues = selectedValues, _selectedIndex = selectedIndex;
+  SelectEvent(Iterable<T> selectedValues, int selectedIndex, [String type = "select", View target])
+      : super(type, target),
+        _selectedValues = selectedValues,
+        _selectedIndex = selectedIndex;
 
   /** Returns the selected values.
    */
   Iterable<T> get selectedValues => _selectedValues;
   /** Returns the first selected value, or null if no selected value.
    */
-  T get selectedValue => _selectedValues.isEmpty ? null: _selectedValues.first;
+  T get selectedValue => _selectedValues.isEmpty ? null : _selectedValues.first;
 
   /** Returns the first selected index, or -1 if none is selected.
    *
@@ -362,5 +359,5 @@ class SelectEvent<T> extends ViewEvent {
  * A factory to expose [View]'s events as Streams.
  */
 class ViewEventStreamProvider<T extends ViewEvent> extends StreamProvider<T> {
-  const ViewEventStreamProvider(String eventType): super(eventType);
+  const ViewEventStreamProvider(String eventType) : super(eventType);
 }

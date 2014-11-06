@@ -72,15 +72,14 @@ abstract class AbstractLayout extends Layout {
 
       //3) pass control to children
       for (final View child in view.children) {
-        if (child.visible)
-          child.doLayout_(mctx); //no matter shallLayout_(child)
+        if (child.visible) child.doLayout_(mctx); //no matter shallLayout_(child)
       }
     }
   }
 }
 
 //Utilities//
-final int _SPACING = browser.touch ? 8: 4;
+final int _SPACING = browser.touch ? 8 : 4;
 /** Returns the layout amount info for the given view.
  */
 AmountInfo _getAmountInfo(View view, String value) {
@@ -103,14 +102,12 @@ class FreeLayout extends AbstractLayout {
       for (final View child in view.children) {
         if (view.shallLayout_(child) && child.profile.anchorView == null) {
           int subsz = child.measureWidth_(mctx);
-          subsz = child.left + (subsz != null ? subsz: 0);
-          if (wd == null || subsz > wd)
-            wd = subsz;
+          subsz = child.left + (subsz != null ? subsz : 0);
+          if (wd == null || subsz > wd) wd = subsz;
         }
       }
 
-      if (wd != null)
-        wd += mctx.getBorderWidth(view);
+      if (wd != null) wd += mctx.getBorderWidth(view);
     }
     return wd;
   }
@@ -121,21 +118,19 @@ class FreeLayout extends AbstractLayout {
       for (final View child in view.children) {
         if (view.shallLayout_(child) && child.profile.anchorView == null) {
           int subsz = child.measureHeight_(mctx);
-          subsz = child.top + (subsz != null ? subsz: 0);
-          if (hgh == null || subsz > hgh)
-            hgh = subsz;
+          subsz = child.top + (subsz != null ? subsz : 0);
+          if (hgh == null || subsz > hgh) hgh = subsz;
         }
       }
 
-      if (hgh != null)
-        hgh += mctx.getBorderHeight(view);
+      if (hgh != null) hgh += mctx.getBorderHeight(view);
     }
     return hgh;
   }
   bool get isProfileInherited => false;
   void doLayout_(MeasureContext mctx, View view, List<View> children) {
-    final AsInt clientWidth = () => view.clientWidth,
-      clientHeight = () => view.clientHeight; //future: introduce cache
+    final AsInt clientWidth = () => view.clientWidth;
+    final AsInt clientHeight = () => view.clientHeight; //future: introduce cache
     for (final View child in children) {
       mctx.setWidthByProfile(child, clientWidth);
       mctx.setHeightByProfile(child, clientHeight);
@@ -148,44 +143,32 @@ class FreeLayout extends AbstractLayout {
 void rootLayout(MeasureContext mctx, View root) {
   final node = root.node;
   final dlgInfo = dialogInfos[root];
-  Element cave = dlgInfo != null ? dlgInfo.cave.parent: node.parent;
-  if (cave == document.body)
-    cave = null;
-  final size = cave == null ? DomUtil.windowSize: DomUtil.clientSize(cave);
+  Element cave = dlgInfo != null ? dlgInfo.cave.parent : node.parent;
+  if (cave == document.body) cave = null;
+  final size = cave == null ? DomUtil.windowSize : DomUtil.clientSize(cave);
 
   final anchor = root.profile.anchorView;
-  mctx.setWidthByProfile(root,
-    () => anchor != null ? _anchorWidth(anchor, root): size.width);
-  mctx.setHeightByProfile(root,
-    () => anchor != null ? _anchorHeight(anchor, root): size.height);
+  mctx.setWidthByProfile(root, () => anchor != null ? _anchorWidth(anchor, root) : size.width);
+  mctx.setHeightByProfile(root, () => anchor != null ? _anchorHeight(anchor, root) : size.height);
 
-  final loc = root.profile.location,
-  	leftByApp = loc.isEmpty && mctx.getLeftByApp(root) != null,
-    topByApp = loc.isEmpty && mctx.getTopByApp(root) != null;
-    //if !loc.isEmpty, the layout is still required (since it is related to cave)
+  final loc = root.profile.location;
+  final topByApp = loc.isEmpty && mctx.getTopByApp(root) != null;
+  final leftByApp = loc.isEmpty && mctx.getLeftByApp(root) != null;
+  //if !loc.isEmpty, the layout is still required (since it is related to cave)
   if (!leftByApp || !topByApp) {
-    final ref = anchor != null ? anchor:
-      cave != null ? new _AnchorOfNode(cave): _anchorOfRoot;
-    final ofs = anchor != null ?
-      cave != anchor.parent ?
-        anchor.page - root.page + new Point(root.left, root.top):
-        new Point(anchor.left, anchor.top):
-      cave != null && node.offsetParent != node.parent ? //if parent is relative/absolute/fixed
-          DomUtil.position(cave): new Point(0,0);
+    final ref = anchor != null ? anchor : cave != null ? new _AnchorOfNode(cave) : _anchorOfRoot;
+    final ofs = anchor != null ? cave != anchor.parent ? anchor.page - root.page + new Point(root.left, root.top) : new Point(anchor.left, anchor.top) : cave != null && node.offsetParent != node.parent ? //if parent is relative/absolute/fixed
+    DomUtil.position(cave) : new Point(0, 0);
 
     final locators = _getLocators(loc);
     final mi = new SideInfo(root.profile.margin, 0);
-    if (!leftByApp)
-      _anchorXLocators[locators[0]](ofs.x + mi.left, ref, root);
-    if (!topByApp)
-      _anchorYLocators[locators[1]](ofs.y + mi.top, ref, root);
+    if (!leftByApp) _anchorXLocators[locators[0]](ofs.x + mi.left, ref, root);
+    if (!topByApp) _anchorYLocators[locators[1]](ofs.y + mi.top, ref, root);
 
     int diff = mi.left + mi.right;
-    if (diff != 0 && mctx.getWidthByApp(root) == null)
-      root.width -= diff;
+    if (diff != 0 && mctx.getWidthByApp(root) == null) root.width -= diff;
     diff = mi.top + mi.bottom;
-    if (diff != 0 && mctx.getHeightByApp(root) == null)
-      root.height -= diff;
+    if (diff != 0 && mctx.getHeightByApp(root) == null) root.height -= diff;
   }
 }
 //Used by _locateRoot to simulate an achor for root views

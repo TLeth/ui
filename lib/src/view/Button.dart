@@ -8,14 +8,14 @@ class Button extends TextView {
   /** Instantiates with a plain text.
    * The text will be encoded to make sure it is valid HTML text.
    */
-  Button([String text]): super(text);
+  Button([String text]) : super(text);
   /** Instantiates with a HTML fragment.
    *
    * + [html] specifies a HTML fragment.
    * Notice it must be a valid HTML fragment. Otherwise, the result is
    * unpredictable.
    */
-  Button.fromHtml(String html): super.fromHtml(html);
+  Button.fromHtml(String html) : super.fromHtml(html);
 
   /** Returns the INPUT element in this view.
    */
@@ -31,8 +31,8 @@ class Button extends TextView {
    * + [type] can be either `button`, `submit` or `reset`.
    */
   void set type(String type) {
-    node.attributes['type'] = type == null || type.isEmpty ? "button": type;
-      //Chrome's type can't be assigned directly
+    node.attributes['type'] = type == null || type.isEmpty ? "button" : type;
+    //Chrome's type can't be assigned directly
   }
   /** Returns whether it is disabled.
    *
@@ -54,13 +54,11 @@ class Button extends TextView {
    */
   void set autofocus(bool autofocus) {
     final btn = _buttonNode..autofocus = _b(autofocus);
-    if (autofocus && inDocument)
-      btn.focus();
+    if (autofocus && inDocument) btn.focus();
   }
 
   @override
-  Element render_()
-  => new Element.html("<button>$encodedText</button>");
+  Element render_() => new Element.html("<button>$encodedText</button>");
   @override
   String get className => "Button";
 }

@@ -24,16 +24,14 @@ class Style extends View {
    */
   StyleSheet get sheet {
     var n;
-    if ((n = _linkNode) != null)
-      return n.sheet;
-    if ((n = _styleNode) != null)
-      return n.sheet;
+    if ((n = _linkNode) != null) return n.sheet;
+    if ((n = _styleNode) != null) return n.sheet;
   }
   /** Returns the URL of the CSS file, or null if no CSS file specified.
    */
   String get src {
     final n = _linkNode;
-    return n != null ? n.href: null;
+    return n != null ? n.href : null;
   }
   /** Sets the URL of the CSS file.
    * If there is any content, it will be removed.
@@ -51,7 +49,7 @@ class Style extends View {
    */
   String get content {
     final n = _styleNode;
-    return n != null ? n.innerHtml: null;
+    return n != null ? n.innerHtml : null;
   }
   /** Sets the CSS content.
    * If there is any URI being assigned, it will be removed.
@@ -75,29 +73,27 @@ class Style extends View {
     if (_media != media) {
       _media = media;
       var n;
-      if ((n = _linkNode) != null)
-        n.media = _s(media);
-      else if ((n = _styleNode) != null)
-        n.media = _s(media);
+      if ((n = _linkNode) != null) n.media = _s(media); else if ((n = _styleNode) != null) n.media = _s(media);
     }
   }
 
   void _updateInner(String content, String src) {
     final out = new StringBuffer();
-    if (src != null)
-      out..write('<link rel="stylesheet" type="text/css" href="')..write(src)..write('"');
-    else
-      out.write('<style');
+    if (src != null) out
+        ..write('<link rel="stylesheet" type="text/css" href="')
+        ..write(src)
+        ..write('"'); else out.write('<style');
 
-    if (media != null)
-      out..write(' media="')..write(media)..write('"');
+    if (media != null) out
+        ..write(' media="')
+        ..write(media)
+        ..write('"');
 
     if (src != null) {
       out.write('/>');
     } else {
       out.write('>');
-      if (content != null)
-        out.write(content);
+      if (content != null) out.write(content);
       out.write('</style>');
     }
     node.setInnerHtml(out.toString(), treeSanitizer: const _NullTreeSanitizer());
